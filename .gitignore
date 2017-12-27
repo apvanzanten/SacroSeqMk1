@@ -36,3 +36,7 @@
 # Platformio-generated files
 .pioenvs
 .piolibdeps
+
+# Misc project files
+.clang_complete
+*.sublime-*
