@@ -24,4 +24,4 @@ This software is written for a piece of [teensy3.1](https://www.pjrc.com/teensy/
 Software and any other design files on this repository are licensed under GPLv3.
 
 ## Who built this diabolical contraption?
-Me. @apvanzanten.
+Me. [@apvanzanten](http://www.github.com/apvanzanten).
