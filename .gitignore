@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+*.hex
+*.elf
+
+# Platformio-generated files
+.pioenvs
