@@ -35,3 +35,4 @@
 
 # Platformio-generated files
 .pioenvs
+.piolibdeps
