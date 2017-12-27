@@ -30,6 +30,7 @@ namespace sseq {
       constexpr PinName BUTTON = D18;
       constexpr PinName LED = D17;
     } // namespace pins
+    constexpr std::size_t NUM_SOURCES = pins::SOURCES.size();
     constexpr std::size_t NUM_INPUTS = 4;
     constexpr std::size_t NUM_OUTPUTS = 1;
   } // namespace grid
