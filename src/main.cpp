@@ -1,4 +1,5 @@
 #include "io/buffered_serial.hpp"
+#include "io/encoder.hpp"
 #include "io/grid.hpp"
 #include "sacroseq.hpp"
 
@@ -24,15 +25,19 @@ int main() {
        DigitalIn(grid::pins::ENC_B, PullDown), DigitalIn(grid::pins::BUTTON, PullDown)},
       {DigitalOut(grid::pins::LED)});
 
+  io::encoder encoder;
+
   while (true) {
     grid_io.step();
     for (size_t i = 0; i < grid::NUM_SOURCES; i++) {
       grid_io.set(i, 0, grid_io.get(i, 0));
+
       pc.try_printf("%d%d%d%d\t", grid_io.get(i, 0), grid_io.get(i, 1), grid_io.get(i, 2),
                     grid_io.get(i, 3));
     }
+    encoder.update(grid_io.get(0, 1), grid_io.get(0, 2));
+    pc.try_printf("%d", encoder.peek());
     pc.try_putc('\n');
-
     pc.flush();
   }
 
