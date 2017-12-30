@@ -1,5 +1,5 @@
 #include "io/buffered_serial.hpp"
-#include "io/encoder.hpp"
+#include "io/button.hpp"
 #include "io/grid.hpp"
 #include "sacroseq.hpp"
 
@@ -37,27 +37,31 @@ int main() {
   Ticker t;
   t.attach_us(&step, MAIN_CLOCK_PERIOD_US);
 
-  const size_t enc_a_index = 1;
-  const size_t enc_b_index = 2;
+  Timer tmr;
+  tmr.start();
 
-  std::array<io::encoder, 8> encoders = {
-      io::encoder(grid_io.get_ref(0, enc_a_index), grid_io.get_ref(0, enc_b_index)),
-      io::encoder(grid_io.get_ref(1, enc_a_index), grid_io.get_ref(1, enc_b_index)),
-      io::encoder(grid_io.get_ref(2, enc_a_index), grid_io.get_ref(2, enc_b_index)),
-      io::encoder(grid_io.get_ref(3, enc_a_index), grid_io.get_ref(3, enc_b_index)),
-      io::encoder(grid_io.get_ref(4, enc_a_index), grid_io.get_ref(4, enc_b_index)),
-      io::encoder(grid_io.get_ref(5, enc_a_index), grid_io.get_ref(5, enc_b_index)),
-      io::encoder(grid_io.get_ref(6, enc_a_index), grid_io.get_ref(6, enc_b_index)),
-      io::encoder(grid_io.get_ref(7, enc_a_index), grid_io.get_ref(7, enc_b_index)),
+  std::array<io::button, 8> buttons = {
+      io::button(tmr, grid_io.get_ref(0, 3)), io::button(tmr, grid_io.get_ref(1, 3)),
+      io::button(tmr, grid_io.get_ref(2, 3)), io::button(tmr, grid_io.get_ref(3, 3)),
+      io::button(tmr, grid_io.get_ref(4, 3)), io::button(tmr, grid_io.get_ref(5, 3)),
+      io::button(tmr, grid_io.get_ref(6, 3)), io::button(tmr, grid_io.get_ref(7, 3)),
   };
 
+  std::array<size_t, 8> clicks;
+  for (auto &e : clicks) {
+    e = 0;
+  }
+
   while (true) {
-    for (auto &enc : encoders) {
-      enc.update();
-      pc.try_printf("%d\t", enc.peek());
+    for (size_t i = 0; i < buttons.size(); i++) {
+      buttons[i].update();
+      clicks[i] += buttons[i].is_clicked();
+      buttons[i].reset_clicked();
+      pc.try_printf("%d,%d\t", buttons[i].is_held(), clicks[i]);
     }
+
     pc.try_putc('\n');
-    wait(0.01);
+    wait(0.005);
   }
 
   alerts::done();

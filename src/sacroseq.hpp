@@ -45,7 +45,7 @@ namespace sseq {
   } // namespace midi
   namespace buttons {
     constexpr std::array<PinName, 4> PINS = {D23, D22, D21, D20};
-    constexpr std::uint8_t DEBOUNCE_MS = 5;
+    constexpr std::uint8_t DEBOUNCE_MS = 10;
   } // namespace buttons
   namespace alerts {
     /* Halt and blink a short message (at most 4 characters) on the 7-segment
