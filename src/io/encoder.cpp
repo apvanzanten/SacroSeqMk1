@@ -56,6 +56,9 @@ void sseq::io::encoder::update(bool a, bool b) {
         state = states::initial;
       }
       break;
+    default: // probably means our state variable is uninitialized; initialize it
+      state = states::initial;
+      break;
     }
   }
 }

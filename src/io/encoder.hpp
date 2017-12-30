@@ -10,7 +10,7 @@ namespace sseq {
         counter_clockwise_1,
         counter_clockwise_2,
         error
-      } state;
+      } state = states::initial;
 
       int delta = 0;
       bool prev_a = false;
