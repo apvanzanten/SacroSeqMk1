@@ -1,6 +1,8 @@
 #include "encoder.hpp"
 
-void sseq::io::encoder::update(bool a, bool b) {
+sseq::io::encoder::encoder(const bool &a, const bool &b) : a(a), b(b) {}
+
+void sseq::io::encoder::update() {
   if (a != prev_a || b != prev_b) {
     prev_a = a;
     prev_b = b;

@@ -15,8 +15,12 @@ namespace sseq {
       int delta = 0;
       bool prev_a = false;
       bool prev_b = false;
+      const bool &a;
+      const bool &b;
 
     public:
+      encoder(const bool &a, const bool &b);
+
       inline int read() {
         auto ret = delta;
         delta = 0;
@@ -24,7 +28,7 @@ namespace sseq {
       }
 
       inline int peek() const { return delta; }
-      void update(bool a, bool b);
+      void update();
     };
   } // namespace io
 } // namespace sseq

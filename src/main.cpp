@@ -37,19 +37,27 @@ int main() {
   Ticker t;
   t.attach_us(&step, MAIN_CLOCK_PERIOD_US);
 
-  io::encoder enc;
-  const size_t enc_index = 0;
   const size_t enc_a_index = 1;
   const size_t enc_b_index = 2;
-  
-  const bool &enc_a_val = grid_io.get_ref(enc_index, enc_a_index);
-  const bool &enc_b_val = grid_io.get_ref(enc_index, enc_b_index);
+
+  std::array<io::encoder, 8> encoders = {
+      io::encoder(grid_io.get_ref(0, enc_a_index), grid_io.get_ref(0, enc_b_index)),
+      io::encoder(grid_io.get_ref(1, enc_a_index), grid_io.get_ref(1, enc_b_index)),
+      io::encoder(grid_io.get_ref(2, enc_a_index), grid_io.get_ref(2, enc_b_index)),
+      io::encoder(grid_io.get_ref(3, enc_a_index), grid_io.get_ref(3, enc_b_index)),
+      io::encoder(grid_io.get_ref(4, enc_a_index), grid_io.get_ref(4, enc_b_index)),
+      io::encoder(grid_io.get_ref(5, enc_a_index), grid_io.get_ref(5, enc_b_index)),
+      io::encoder(grid_io.get_ref(6, enc_a_index), grid_io.get_ref(6, enc_b_index)),
+      io::encoder(grid_io.get_ref(7, enc_a_index), grid_io.get_ref(7, enc_b_index)),
+  };
 
   while (true) {
-    enc.update(enc_a_val, enc_b_val);
-    pc.try_printf("%d%d: %d", enc_a_val, enc_b_val, enc.peek());
+    for (auto &enc : encoders) {
+      enc.update();
+      pc.try_printf("%d\t", enc.peek());
+    }
     pc.try_putc('\n');
-    wait(0.001);
+    wait(0.01);
   }
 
   alerts::done();
