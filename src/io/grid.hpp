@@ -47,7 +47,7 @@ namespace sseq {
 
       inline void clear(size_t x, size_t y) { desired_out_values[x][y] = false; }
 
-      inline const bool & get_ref(size_t x, size_t y) const { return in_values[x][y]; }
+      inline const bool &get_ref(size_t x, size_t y) const { return in_values[x][y]; }
     };
   } // namespace io
 } // namespace sseq
