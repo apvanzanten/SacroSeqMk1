@@ -11,7 +11,7 @@
  */
 
 namespace sseq {
-  constexpr std::uint8_t MAIN_CLOCK_PERIOD_US = 32;
+  constexpr std::uint8_t MAIN_CLOCK_PERIOD_US = 50;
   namespace disp { // stuff pertaining to the 7-segment display
     namespace pins {
       constexpr PinName TX = D8;

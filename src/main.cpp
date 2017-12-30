@@ -35,7 +35,7 @@ int main() {
   pc.flush();
 
   Ticker t;
-  t.attach_us(&step, 50);
+  t.attach_us(&step, MAIN_CLOCK_PERIOD_US);
 
   io::encoder enc;
   const size_t enc_index = 0;
