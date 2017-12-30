@@ -10,12 +10,12 @@
 namespace sseq {
   namespace io {
     template <std::size_t N> class buffered_serial {
-      util::circular_buffer<char, N> buffer;
+      util::circular_buffer<char, N> buffer{};
       Serial s;
 
     public:
-      explicit buffered_serial(PinName tx, PinName rx, int baud = 9600)
-          : buffer(), s(tx, rx, baud) {}
+      buffered_serial(PinName tx, PinName rx, int baud = 9600)
+          : s(tx, rx, baud) {}
 
       inline bool try_write() {
         if (!buffer.empty() && s.writeable()) {
@@ -33,6 +33,10 @@ namespace sseq {
 
       inline void clear() { buffer.clear(); }
 
+      inline size_t num_free(){
+        return buffer.num_free();
+      }
+
       inline bool try_putc(char c) {
         if (buffer.full()) {
           return false;
@@ -46,6 +50,10 @@ namespace sseq {
         while (s[n] != '\0') {
           n++;
         }
+        return buffer.try_push_array(s, n);
+      }
+
+      inline bool try_put_array(const char * s, size_t n){
         return buffer.try_push_array(s, n);
       }
 
