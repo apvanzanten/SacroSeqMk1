@@ -19,6 +19,12 @@ namespace sseq {
     } // namespace pins
     constexpr std::uint32_t BAUD_RATE = 9600;
     constexpr std::uint8_t CLEAR_SCREEN = 0x76;
+    constexpr std::size_t SCREEN_SIZE = 4;
+    constexpr std::size_t BUFFER_SIZE = 8;
+    constexpr char BLANK_SPACE = ' ';
+    constexpr char UNKNOWN_CHAR = '_';
+    constexpr bool is_valid(char c) { return !(c < '0' || c > 'u' || c == 'k' || c == 'm'); }
+    constexpr char sanitize(char c) { return (is_valid(c) ? c : UNKNOWN_CHAR); }
   } // namespace disp
   namespace grid {
     namespace pins {
