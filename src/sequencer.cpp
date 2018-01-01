@@ -36,6 +36,8 @@ namespace sseq {
         case gate_mode::pulse_repeat:
           gate_state = gate_states::pulse_repeat_on;
           break;
+        default: // panic!
+          alerts::error();
         }
       }
       break;
@@ -95,6 +97,8 @@ namespace sseq {
         }
       }
       break;
+    default: // panic!
+      alerts::error();
     }
   }
 
