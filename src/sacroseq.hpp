@@ -49,6 +49,10 @@ namespace sseq {
 
     constexpr std::uint32_t BAUD_RATE = 115200; // put this back to 31250 when we actually run midi
     constexpr std::size_t BUFFER_SIZE = 32;
+    constexpr std::uint8_t NOTE_ON = 0x90;
+    constexpr std::uint8_t NOTE_OFF = 0x80;
+    constexpr std::uint8_t CHANNEL_MASK = 0xf;
+    constexpr std::uint8_t VELOCITY_MASK = 0x7f;
 
     enum class note {
       a1 = 33,
@@ -100,6 +104,27 @@ namespace sseq {
       g5 = 79,
       gs5 = 80
     };
+
+    struct msg {
+      std::uint8_t status = NOTE_OFF;
+      std::uint8_t note = static_cast<std::uint8_t>(note::c4);
+      std::uint8_t velocity = 64;
+    };
+
+    constexpr msg make_note_on(std::uint8_t channel, note n, std::uint8_t velocity) {
+      msg m{};
+      m.status = (NOTE_ON | (channel & CHANNEL_MASK));
+      m.note = static_cast<std::uint8_t>(n);
+      m.velocity = (velocity & VELOCITY_MASK);
+      return m;
+    }
+    constexpr msg make_note_off(std::uint8_t channel, note n){
+      msg m{};
+      m.status = (NOTE_OFF | (channel & CHANNEL_MASK));
+      m.note = static_cast<std::uint8_t>(n);
+      m.velocity = 0;
+      return m;
+    }
 
   } // namespace midi
   namespace buttons {

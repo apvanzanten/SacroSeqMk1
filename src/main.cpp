@@ -11,16 +11,16 @@ sequencer seq;
 
 midi::note current_note = midi::note::c4;
 std::uint8_t current_velocity = 0;
-volatile size_t msg_count = 0;
+volatile size_t m_count = 0;
 
 void step() {
   board_led = 1;
   pc.try_write();
   if (seq.update_and_check_buffer()) {
-    const auto msg = seq.get_note();
-    current_note = msg.note;
-    current_velocity = msg.velocity;
-    ++msg_count;
+    const auto m = seq.get_note();
+    current_note = m.note;
+    current_velocity = m.velocity;
+    ++m_count;
   }
 
   board_led = 0;
@@ -58,12 +58,17 @@ int main() {
   Ticker t;
   t.attach_us(&step, MAIN_CLOCK_PERIOD_US);
 
-
-  size_t printed_msg_count = 0;
+  size_t printed_m_count = 0;
   while (true) {
-    while (msg_count > printed_msg_count) {
-      pc.try_printf("%d,%d:%d,%d\n", tmr.read_ms(), msg_count, current_note, current_velocity);
-      printed_msg_count++;
+    while (m_count > printed_m_count) {
+      if (current_velocity > 0) {
+        const auto m = midi::make_note_on(0, current_note, current_velocity);
+        pc.try_printf("%d ON :\t%x\t%x\t%x\n", tmr.read_ms(), m.status, m.note, m.velocity);
+      } else {
+        const auto m = midi::make_note_off(0, current_note);
+        pc.try_printf("%d OFF:\t%x\t%x\t%x\n", tmr.read_ms(), m.status, m.note, m.velocity);
+      }
+      printed_m_count++;
     }
   }
 
