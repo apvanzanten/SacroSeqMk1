@@ -101,15 +101,33 @@ namespace sseq {
       }
     }
 
-    inline bool get_and_reset_button_clicked(size_t index) {
+    inline bool check_and_reset_button_clicked(size_t index) {
       bool ret = buttons[index].is_clicked();
       buttons[index].reset_clicked();
       return ret;
     }
 
-    inline bool get_button_held(size_t index) { return buttons[index].is_held(); }
+    inline bool is_button_held(size_t index) { return buttons[index].is_held(); }
 
-    inline size_t get_enc_val(size_t index) { return encoders[index].peek(); }
+    inline int get_enc_delta(size_t index) { return encoders[index].peek(); }
+
+    inline int get_and_reset_enc_delta(size_t index){ return encoders[index].read(); }
+
+    inline std::array<bool, 20> check_and_reset_all_buttons_clicked() {
+      std::array<bool, 20> out;
+      for(size_t i = 0; i < 20; ++i){
+        out[i] = check_and_reset_button_clicked(i);
+      }
+      return out;
+    }
+
+    inline std::array<int, 8> get_and_reset_all_enc_deltas() {
+      std::array<int, 8> out;
+      for(size_t i = 0; i < 8; i++){
+        out[i] = get_and_reset_enc_delta(i);
+      }
+      return out;
+    }
   };
 } // namespace sseq
 

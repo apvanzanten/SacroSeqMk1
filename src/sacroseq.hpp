@@ -13,6 +13,7 @@
 namespace sseq {
   constexpr std::uint8_t MAIN_CLOCK_PERIOD_US = 50;
   constexpr std::size_t MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
+  constexpr std::uint32_t MAX_REPETITIONS = 7;
   namespace disp { // stuff pertaining to the 7-segment display
     namespace pins {
       constexpr PinName TX = D8;
@@ -55,6 +56,7 @@ namespace sseq {
     constexpr std::uint8_t VELOCITY_MASK = 0x7f;
 
     enum class note {
+      MINIMUM = 33,
       a1 = 33,
       as1 = 34,
       b1 = 35,
@@ -102,8 +104,11 @@ namespace sseq {
       f5 = 77,
       fs5 = 78,
       g5 = 79,
-      gs5 = 80
+      gs5 = 80,
+      MAXIMUM = 80
     };
+
+    constexpr note DEFAULT_NOTE = note::c4;
 
     struct msg {
       std::uint8_t status = NOTE_OFF;

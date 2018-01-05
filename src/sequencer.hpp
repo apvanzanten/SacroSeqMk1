@@ -51,9 +51,7 @@ namespace sseq {
 
     inline std::uint8_t get_velocity() { return (steps[step_index].is_active ? 127 : 0); }
 
-    inline void note_on(midi::note note) {
-      output_buffer.push(note_message{note, get_velocity()});
-    }
+    inline void note_on(midi::note note) { output_buffer.push(note_message{note, get_velocity()}); }
 
     inline std::int8_t get_step_offset() { return 1; }
 
@@ -67,6 +65,12 @@ namespace sseq {
     void update_gate_state();
 
   public:
+    inline size_t get_bpm() const { return period / (60 * MAIN_CLOCK_FREQUENCY_HZ); }
+    inline std::uint32_t get_gate_time() const { return gate_time; }
+    inline gate_mode get_gate_mode(size_t index) const { return steps[index].gate; }
+    inline std::uint32_t get_repetitions(size_t index) const { return steps[index].repetitions; }
+    inline bool get_activity(size_t index) const { return steps[index].is_active; }
+
     inline void set_bpm(size_t new_bpm) { period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; }
 
     inline void set_gate_time(float new_time_fraction) {
@@ -84,12 +88,21 @@ namespace sseq {
       return !(output_buffer.empty());
     }
 
-    inline note_message get_note() { return output_buffer.pop(); }
+    inline note_message get_next_note() { return output_buffer.pop(); }
 
     inline void set_gate_mode(size_t index, gate_mode new_val) {
       is_being_edited = true;
       steps[index].gate = new_val;
       is_being_edited = false;
+    }
+
+    inline void set_gate_mode_relative(size_t index, int offset){
+      const int old_val = static_cast<int>(steps[index].gate);
+      if (offset > 0 && steps[index].gate != gate_mode::pulse_once_then_hold){
+        steps[index].gate = static_cast<gate_mode>(old_val + 1);
+      } else if(offset < 0 && steps[index].gate != gate_mode::hold){
+        steps[index].gate = static_cast<gate_mode>(old_val - 1);
+      }
     }
 
     inline void set_note(size_t index, midi::note new_val) {
@@ -98,10 +111,35 @@ namespace sseq {
       is_being_edited = false;
     }
 
+    inline void set_note_relative(size_t index, int offset) {
+      int new_val = static_cast<int>(steps[index].note);
+      new_val += offset;
+
+      // TODO replace this with a proper clamp
+      if (new_val < static_cast<int>(midi::note::MINIMUM)) {
+        set_note(index, midi::note::MINIMUM);
+      } else if (new_val > static_cast<int>(midi::note::MAXIMUM)) {
+        set_note(index, midi::note::MAXIMUM);
+      } else {
+        set_note(index, static_cast<midi::note>(new_val));
+      }
+    }
+
     inline void set_repetitions(size_t index, std::uint8_t new_val) {
       is_being_edited = true;
       steps[index].repetitions = new_val;
       is_being_edited = false;
+    }
+
+    inline void set_repetitions_relative(size_t index, int offset) {
+      auto new_val = steps[index].repetitions + offset;
+      if(new_val < 0){
+        set_repetitions(index, 0);
+      } else if(new_val > MAX_REPETITIONS) {
+        set_repetitions(index, MAX_REPETITIONS);
+      } else {
+        set_repetitions(index, new_val);
+      }
     }
 
     inline void set_activity(size_t index, bool new_val) {
