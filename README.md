@@ -1,6 +1,9 @@
 # SacroSeqMk1
 Software for a DIY midi sequencer loosely inspired by the Intellijel Metropolis.
 
+## Current status : On hold - very much unfinished
+I ran into a hardware problem and I don't currently have access to the tools to fix it, and I am not terribly motivated to work on software for a project for which the hardware is broken.
+
 ## Hardware
 This software is written for a piece of [teensy3.1](https://www.pjrc.com/teensy/teensy31.html)-based custom hardware, design files or schematics for which may or may not appear on here at some point (it's not that I don't wish to share them, it's that they don't exist).
 
