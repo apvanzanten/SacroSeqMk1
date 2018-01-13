@@ -44,6 +44,7 @@ namespace sseq {
       inline bool get(size_t x, size_t y) const { return in_values[x][y]; }
 
       inline void set(size_t x, size_t y, bool newVal = true) { desired_out_values[x][y] = newVal; }
+      inline bool get_desired(size_t x, size_t y) const { return desired_out_values[x][y]; }
 
       inline void clear(size_t x, size_t y) { desired_out_values[x][y] = false; }
 

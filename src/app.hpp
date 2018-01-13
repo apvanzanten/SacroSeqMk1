@@ -15,9 +15,16 @@ namespace sseq {
     io::buffered_serial<disp::BUFFER_SIZE> display{disp::pins::TX, disp::pins::RX, disp::BAUD_RATE};
     io::buffered_serial<midi::BUFFER_SIZE> midi{midi::pins::TX, midi::pins::RX, midi::BAUD_RATE};
 
-    std::uint8_t channel = 0;
+    std::uint8_t channel = 1;
 
-    enum class modes { note, repetition, gate, global, menu } mode;
+    struct modes {
+      enum val { note, repetition, gate, global, menu };
+      static constexpr size_t NUM = 5;
+    };
+    modes::val mode;
+
+    const std::array<char[disp::SCREEN_SIZE + 1], modes::NUM> mode_msgs = {
+        "note", "reps", "gate", "glob", "_enu"};
 
     struct buttons {
       enum vals {
@@ -92,20 +99,30 @@ namespace sseq {
       midi.try_write();
     }
 
+    inline void write_to_display(const char * msg){
+      display.try_putc(disp::CLEAR_SCREEN);
+      display.try_puts(msg);
+    }
+
+    inline void switch_to_mode(modes::val new_mode) {
+      write_to_display(mode_msgs[new_mode]);
+      mode = new_mode;
+    }
+
     inline void update_mode() {
       if (interf.is_button_held(buttons::shift)) {
         if (interf.check_and_reset_button_clicked(buttons::top_right)) {
-          mode = modes::global;
+          switch_to_mode(modes::global);
         } else if (interf.check_and_reset_button_clicked(buttons::bottom_right)) {
-          mode = modes::menu;
+          switch_to_mode(modes::menu);
         }
       } else {
         if (interf.check_and_reset_button_clicked(buttons::top_right)) {
-          mode = modes::note;
+          switch_to_mode(modes::note);
         } else if (interf.check_and_reset_button_clicked(buttons::bottom_right)) {
-          mode = modes::repetition;
+          switch_to_mode(modes::repetition);
         } else if (interf.check_and_reset_button_clicked(buttons::bottom_left)) {
-          mode = modes::gate;
+          switch_to_mode(modes::gate);
         }
       }
     }
@@ -124,11 +141,18 @@ namespace sseq {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].enc_button;
         if (interf.check_and_reset_button_clicked(button_index)) {
+          write_to_display("dflt");
           seq.set_note(step_index, midi::DEFAULT_NOTE);
           interf.get_and_reset_enc_delta(step_index);
         } else {
           const auto offset = interf.get_and_reset_enc_delta(step_index);
           seq.set_note_relative(step_index, offset);
+          if(offset > 0){
+            write_to_display("up");
+          } else if(offset < 0){
+            write_to_display("do n");
+          }
+          // TODO write new value to display (if changed)
         }
       }
     }
@@ -137,11 +161,18 @@ namespace sseq {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].enc_button;
         if (interf.check_and_reset_button_clicked(button_index)) {
+          write_to_display("0");
           seq.set_repetitions(step_index, 0);
           interf.get_and_reset_enc_delta(step_index);
         } else {
           const auto offset = interf.get_and_reset_enc_delta(step_index);
           seq.set_repetitions_relative(step_index, offset);
+          if(offset > 0){
+            write_to_display("up");
+          } else if(offset < 0){
+            write_to_display("do n");
+          }
+          // TODO write new value to display (if changed)
         }
       }
     }
@@ -155,6 +186,12 @@ namespace sseq {
         } else {
           const auto offset = interf.get_and_reset_enc_delta(step_index);
           seq.set_gate_mode_relative(step_index, offset);
+          if(offset > 0){
+            write_to_display("up");
+          } else if(offset < 0){
+            write_to_display("do n");
+          }
+          // TODO write new value to display (if changed)
         }
       }
     }
@@ -163,29 +200,37 @@ namespace sseq {
       const auto enc_deltas = interf.get_and_reset_all_enc_deltas();
 
       if (enc_deltas[globals::min_velocity] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::max_velocity] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::velocity_distribution] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::min_step_offset] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::max_step_offset] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::step_offset_distribution] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::gate_time] != 0) {
-        // placeholder
+        // TODO placeholder
       } else if (enc_deltas[globals::bpm] != 0) {
-        // placeholder
+        // TODO placeholder
       }
+      // TODO write new value to display (if changed)
     }
 
     inline void update_menu() {}
 
+    inline void update_leds() {
+      for(size_t step_index = 0; step_index < 8; ++step_index){
+        interf.set_led_val(step_index, seq.get_activity(step_index));
+      }
+    }
+
     inline void update() {
       update_mode();
       update_activities();
+      update_leds();
 
       switch (mode) {
       case modes::note:
@@ -204,7 +249,7 @@ namespace sseq {
         update_menu();
         break;
       default:
-        mode = modes::note;
+        switch_to_mode(modes::note);
         break;
       }
     }

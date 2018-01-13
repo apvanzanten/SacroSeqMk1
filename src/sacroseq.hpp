@@ -22,7 +22,7 @@ namespace sseq {
     constexpr std::uint32_t BAUD_RATE = 9600;
     constexpr std::uint8_t CLEAR_SCREEN = 0x76;
     constexpr std::size_t SCREEN_SIZE = 4;
-    constexpr std::size_t BUFFER_SIZE = 8;
+    constexpr std::size_t BUFFER_SIZE = 32;
     constexpr char BLANK_SPACE = ' ';
     constexpr char UNKNOWN_CHAR = '_';
     constexpr bool is_valid(char c) { return !(c < '0' || c > 'u' || c == 'k' || c == 'm'); }
@@ -48,7 +48,7 @@ namespace sseq {
       constexpr PinName RX = D0;
     } // namespace pins
 
-    constexpr std::uint32_t BAUD_RATE = 115200; // put this back to 31250 when we actually run midi
+    constexpr std::uint32_t BAUD_RATE = 31250; // put this back to 31250 when we actually run midi
     constexpr std::size_t BUFFER_SIZE = 32;
     constexpr std::uint8_t NOTE_ON = 0x90;
     constexpr std::uint8_t NOTE_OFF = 0x80;

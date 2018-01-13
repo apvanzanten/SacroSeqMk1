@@ -28,6 +28,7 @@ namespace sseq {
     static const size_t enc_a_index = 1;
     static const size_t enc_b_index = 2;
     static const size_t enc_btn_index = 0;
+    static const size_t led_index = 0;
 
     std::array<io::encoder, 8> encoders = {
         io::encoder(grid_io.get_ref(0, enc_a_index), grid_io.get_ref(0, enc_b_index)),
@@ -127,6 +128,13 @@ namespace sseq {
         out[i] = get_and_reset_enc_delta(i);
       }
       return out;
+    }
+
+    inline bool get_led_val(size_t index) const {
+      return !grid_io.get_desired(index, led_index);
+    }
+    inline void set_led_val(size_t index, bool new_val = true) {
+      grid_io.set(index, led_index, !new_val);
     }
   };
 } // namespace sseq
