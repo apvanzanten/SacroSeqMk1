@@ -5,6 +5,7 @@
 #include "io/buffered_serial.hpp"
 #include "sacroseq.hpp"
 #include "sequencer.hpp"
+#include <string>
 
 // TODO refactor to NOT use enum classes, they're terrible for use as indices.
 
@@ -104,6 +105,14 @@ namespace sseq {
       display.try_puts(msg);
     }
 
+    inline void write_to_display(int n) {
+      write_to_display(
+        std::to_string(n)
+        .substr(0,4)
+        .c_str()
+      );
+    }
+
     inline void switch_to_mode(modes::val new_mode) {
       write_to_display(mode_msgs[new_mode]);
       mode = new_mode;
@@ -147,12 +156,9 @@ namespace sseq {
         } else {
           const auto offset = interf.get_and_reset_enc_delta(step_index);
           seq.set_note_relative(step_index, offset);
-          if(offset > 0){
-            write_to_display("up");
-          } else if(offset < 0){
-            write_to_display("do n");
+          if(offset != 0){
+            write_to_display(static_cast<int>(seq.get_note(step_index)));
           }
-          // TODO write new value to display (if changed)
         }
       }
     }
@@ -167,12 +173,10 @@ namespace sseq {
         } else {
           const auto offset = interf.get_and_reset_enc_delta(step_index);
           seq.set_repetitions_relative(step_index, offset);
-          if(offset > 0){
-            write_to_display("up");
-          } else if(offset < 0){
-            write_to_display("do n");
+
+          if(offset != 0){
+            write_to_display(seq.get_repetitions(step_index));
           }
-          // TODO write new value to display (if changed)
         }
       }
     }
@@ -186,12 +190,10 @@ namespace sseq {
         } else {
           const auto offset = interf.get_and_reset_enc_delta(step_index);
           seq.set_gate_mode_relative(step_index, offset);
-          if(offset > 0){
-            write_to_display("up");
-          } else if(offset < 0){
-            write_to_display("do n");
+
+          if(offset != 0){
+            write_to_display(static_cast<int>(seq.get_gate_mode(step_index)));
           }
-          // TODO write new value to display (if changed)
         }
       }
     }
@@ -214,7 +216,8 @@ namespace sseq {
       } else if (enc_deltas[globals::gate_time] != 0) {
         // TODO placeholder
       } else if (enc_deltas[globals::bpm] != 0) {
-        // TODO placeholder
+        seq.set_bpm_relative(enc_deltas[globals::bpm]);
+        write_to_display(seq.get_bpm());
       }
       // TODO write new value to display (if changed)
     }
@@ -223,7 +226,9 @@ namespace sseq {
 
     inline void update_leds() {
       for(size_t step_index = 0; step_index < 8; ++step_index){
-        interf.set_led_val(step_index, seq.get_activity(step_index));
+        interf.set_led_val(step_index, 
+          seq.get_activity(step_index) ^ (seq.get_current_step() == step_index) 
+        );
       }
     }
 
