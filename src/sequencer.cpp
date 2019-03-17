@@ -87,11 +87,11 @@ namespace sseq {
       break;
     case gate_states::pulse_repeat_off:
       if (time_delta >= period) {
-        move_to_next_repetition();
         if (current_repetition >= steps[step_index].repetitions) {
           move_to_next_step();
           gate_state = gate_states::initial;
         } else {
+          move_to_next_repetition();
           note_on(steps[step_index].note);
           gate_state = gate_states::pulse_repeat_on;
         }
