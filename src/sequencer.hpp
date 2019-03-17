@@ -65,13 +65,29 @@ namespace sseq {
     void update_gate_state();
 
   public:
-    inline size_t get_bpm() const { return period / (60 * MAIN_CLOCK_FREQUENCY_HZ); }
+    inline size_t get_bpm() const { return (60 * MAIN_CLOCK_FREQUENCY_HZ) / period; }
     inline std::uint32_t get_gate_time() const { return gate_time; }
+    inline midi::note get_note(size_t index) const { return steps[index].note; }
     inline gate_mode get_gate_mode(size_t index) const { return steps[index].gate; }
     inline std::uint32_t get_repetitions(size_t index) const { return steps[index].repetitions; }
     inline bool get_activity(size_t index) const { return steps[index].is_active; }
+    inline size_t get_current_step() const { return step_index; }
 
-    inline void set_bpm(size_t new_bpm) { period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; }
+    inline void set_bpm(size_t new_bpm) { 
+      auto new_period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; 
+      float gate_fraction = period / static_cast<float>(gate_time);
+
+      // TODO come up with better solution to race condition problem.
+      if(new_period < period){
+        gate_time = static_cast<std::uint32_t>(gate_fraction * new_period);
+        period = new_period;
+      } else {
+        period = new_period;
+        gate_time = static_cast<std::uint32_t>(gate_fraction * new_period);
+      }
+    }
+
+    inline void set_bpm_relative(int offset) { set_bpm(get_bpm() + offset); }
 
     inline void set_gate_time(float new_time_fraction) {
       gate_time = static_cast<std::uint32_t>(new_time_fraction * period);
@@ -104,6 +120,7 @@ namespace sseq {
         steps[index].gate = static_cast<gate_mode>(old_val - 1);
       }
     }
+
 
     inline void set_note(size_t index, midi::note new_val) {
       is_being_edited = true;
