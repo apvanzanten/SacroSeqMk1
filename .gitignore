@@ -39,4 +39,6 @@
 
 # Misc project files
 .clang_complete
-*.sublime-*
+
+# sublime files
+proj.sublime-workspace
