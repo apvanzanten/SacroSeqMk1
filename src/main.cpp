@@ -3,10 +3,11 @@
 
 using namespace sseq;
 
-DigitalOut board_led(LED1);
+DigitalOut board_led(LED1); // LED on the teensy31
+DigitalOut update_indicator(D19); // pin used to indicate update activity
 
-USBSerial pc;
-app a;
+USBSerial pc; // serial over USB port on teensy31
+app a; // actual sequencer app
 
 void greet(){
   for (int i = 0; i < 5; i++) {
@@ -19,10 +20,19 @@ void greet(){
   pc.printf("hello!\n");
 }
 
+// function is called every MAIN_CLOCK_PEIOD_US microseconds
 void step() {
+  // turns led on/off around a.step() so its runtime can be measured
   board_led = 1;
   a.step();
   board_led = 0;
+}
+
+void update() {
+  // turns indicator on/off around a.update() so its runtime can be measured
+  update_indicator = 1;
+  a.update();
+  update_indicator = 0;
 }
 
 int main() {
@@ -31,10 +41,9 @@ int main() {
   Ticker ticker;
   ticker.attach_us(&step, MAIN_CLOCK_PERIOD_US);
 
-
   while(true){
-    a.update();
-    pc.printf("updated\n");
+    update();
+    pc.printf(".");
   }
 
 
