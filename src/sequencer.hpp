@@ -40,18 +40,19 @@ namespace sseq {
 
     std::uint32_t time_delta = 0;
     std::uint32_t period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / 120;
-    std::uint32_t gate_time = period;
+    std::uint32_t gate_time = 0.75 * period;
     std::uint8_t current_repetition = 1;
 
     volatile bool is_being_edited = false;
 
     util::circular_buffer<note_message, 4> output_buffer;
 
-    inline void note_off(midi::note note) { output_buffer.push(note_message{note, 0}); }
+    inline std::uint8_t get_velocity() const { return (steps[step_index].is_active ? 127 : 0); }
 
-    inline std::uint8_t get_velocity() { return (steps[step_index].is_active ? 127 : 0); }
+    inline void note_off(midi::note note) {output_buffer.push(note_message{note, 0}); }
 
     inline void note_on(midi::note note) { output_buffer.push(note_message{note, get_velocity()}); }
+
 
     inline std::int8_t get_step_offset() { return 1; }
 
@@ -75,7 +76,7 @@ namespace sseq {
 
     inline void set_bpm(size_t new_bpm) { 
       auto new_period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; 
-      float gate_fraction = period / static_cast<float>(gate_time);
+      float gate_fraction =  static_cast<float>(gate_time) / static_cast<float>(period);
 
       // TODO come up with better solution to race condition problem.
       if(new_period < period){
