@@ -43,7 +43,7 @@ namespace sseq {
       break;
     case gate_states::hold_on:
       if (time_delta >= gate_time && current_repetition >= steps[step_index].repetitions) {
-        note_off(steps[step_index].note);
+        note_off();
         move_to_next_step();
         gate_state = gate_states::initial;
       } else if (time_delta >= period) {
@@ -52,7 +52,7 @@ namespace sseq {
       break;
     case gate_states::pulse_once_on:
       if (time_delta >= gate_time) {
-        note_off(steps[step_index].note);
+        note_off();
         gate_state = gate_states::hold_off;
       }
       break;
@@ -68,7 +68,7 @@ namespace sseq {
       break;
     case gate_states::pulse_once_then_hold_on:
       if (time_delta >= gate_time) {
-        note_off(steps[step_index].note);
+        note_off();
         gate_state = gate_states::pulse_once_then_hold_off;
       }
       break;
@@ -81,7 +81,7 @@ namespace sseq {
       break;
     case gate_states::pulse_repeat_on:
       if (time_delta >= gate_time) {
-        note_off(steps[step_index].note);
+        note_off();
         gate_state = gate_states::pulse_repeat_off;
       }
       break;

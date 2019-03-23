@@ -43,6 +43,8 @@ namespace sseq {
     std::uint32_t gate_time = 0.75 * period;
     std::uint8_t current_repetition = 1;
 
+    midi::note currently_playing = midi::DEFAULT_NOTE;
+
     volatile bool is_being_edited = false;
 
     util::circular_buffer<note_message, 4> output_buffer;
@@ -50,8 +52,12 @@ namespace sseq {
     inline std::uint8_t get_velocity() const { return (steps[step_index].is_active ? 127 : 0); }
 
     inline void note_off(midi::note note) {output_buffer.push(note_message{note, 0}); }
+    inline void note_off() { note_off(currently_playing); }
 
-    inline void note_on(midi::note note) { output_buffer.push(note_message{note, get_velocity()}); }
+    inline void note_on(midi::note note) { 
+      output_buffer.push(note_message{note, get_velocity()});
+      currently_playing = note;
+    }
 
 
     inline std::int8_t get_step_offset() { return 1; }
