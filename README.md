@@ -22,7 +22,6 @@ This software is written for a piece of [teensy3.1](https://www.pjrc.com/teensy/
 * [platformio](http://www.platformio.org) (core) for building and programming of the hardware. This may change in the future.
 * [mbed](http://os.mbed.org) OS/HAL (whatever you wish to call it) to save me the effort of fiddling with bits and bytes.
 * [clang extra tools](http://clang.llvm.org/extra/) for various extra developer tools (e.g. formatting, autocomplete, static analysis)
-* [spacemacs](http://www.spacemacs.org) for writing code (though, no spacemacs-specific files will be added to the project at any point)
 * [git](http://www.git-scm.com) hosted on [github](http://www.github.com)
 
 ## License

@@ -13,7 +13,6 @@
 
 ## Refactors
 * Decompose sequencer class if able
-* figure out what is up with all these inline functions (did I have a reason for this?)
 
 ## Documentation
 * Class diagram
