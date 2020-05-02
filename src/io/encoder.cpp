@@ -53,6 +53,7 @@ void sseq::io::encoder::update() {
       } else {
         state = states::error;
       }
+      break;
     case states::error: // error state, wait for 0,0 to reset
       if (!a && !b) {
         state = states::initial;
