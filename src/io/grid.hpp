@@ -3,10 +3,11 @@
 
 #include "mbed.h"
 #include <array>
+#include <algorithm>
 
 namespace sseq {
   namespace io {
-    template <std::size_t NUM_SOURCES, std::size_t NUM_INPUTS, std::size_t NUM_OUTPUTS> class grid {
+    template <int NUM_SOURCES, int NUM_INPUTS, int NUM_OUTPUTS> class grid {
       std::array<DigitalOut, NUM_SOURCES> sources;
       std::array<DigitalIn, NUM_INPUTS> inputs;
       std::array<DigitalOut, NUM_OUTPUTS> outputs;
@@ -16,29 +17,39 @@ namespace sseq {
 
       size_t x_index;
 
-    public:
-      grid(std::array<DigitalOut, NUM_SOURCES> sources, std::array<DigitalIn, NUM_INPUTS> inputs,
-           std::array<DigitalOut, NUM_OUTPUTS> outputs)
-          : sources(sources), inputs(inputs), outputs(outputs), in_values(), desired_out_values(),
-            x_index(0) {}
+      void read_inputs() {
+        std::transform(inputs.begin(), inputs.end(), in_values[x_index].begin(), 
+                        [](auto & e){
+                          return e.read();
+                        });
+      }
 
-      inline void step() {
-        // read inputs
-        for (size_t i = 0; i < NUM_INPUTS; i++) {
-          in_values[x_index][i] = inputs[i].read();
-        }
-
-        // switch to next vertical
+      void switch_to_next_vertical() {
         sources[x_index] = 0;
         if (++x_index == NUM_SOURCES) {
           x_index = 0;
         }
         sources[x_index] = 1;
+      }
 
-        // write outputs
-        for (size_t i = 0; i < NUM_OUTPUTS; i++) {
-          outputs[i] = desired_out_values[x_index][i];
-        }
+      void write_outputs() {
+        std::copy(desired_out_values[x_index].begin(), 
+                  desired_out_values[x_index].end(), 
+                  outputs.begin());
+      }
+
+    public:
+      grid(std::array<DigitalOut, NUM_SOURCES> sources, 
+           std::array<DigitalIn, NUM_INPUTS> inputs,
+           std::array<DigitalOut, NUM_OUTPUTS> outputs)
+          : sources(sources), inputs(inputs), outputs(outputs), in_values(), desired_out_values(),
+            x_index(0) {}
+      
+
+      void step() {
+        read_inputs();
+        switch_to_next_vertical();
+        write_outputs();
       }
 
       inline bool get(size_t x, size_t y) const { return in_values[x][y]; }

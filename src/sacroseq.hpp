@@ -10,21 +10,19 @@
  * forbid maybe even a few macros!) relevant to the SacroSeqMk1 project.
  */
 
-// TODO use signed integers
-
 namespace sseq {
-  constexpr std::uint8_t MAIN_CLOCK_PERIOD_US = 50;
-  constexpr std::size_t MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
-  constexpr std::uint32_t MAX_REPETITIONS = 7;
+  constexpr std::int8_t MAIN_CLOCK_PERIOD_US = 50;
+  constexpr std::int32_t MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
+  constexpr std::int8_t MAX_REPETITIONS = 7;
   namespace disp { // stuff pertaining to the 7-segment display
     namespace pins {
       constexpr PinName TX = D8;
       constexpr PinName RX = D7;
     } // namespace pins
-    constexpr std::uint32_t BAUD_RATE = 9600;
-    constexpr std::uint8_t CLEAR_SCREEN = 0x76;
-    constexpr std::size_t SCREEN_SIZE = 4;
-    constexpr std::size_t BUFFER_SIZE = 32;
+    constexpr std::int32_t BAUD_RATE = 9600;
+    constexpr std::int8_t SCREEN_SIZE = 4;
+    constexpr std::int8_t  BUFFER_SIZE = 32;
+    constexpr char CLEAR_SCREEN = 0x76;
     constexpr char BLANK_SPACE = ' ';
     constexpr char UNKNOWN_CHAR = '_';
     constexpr bool is_valid(char c) { return !(c < '0' || c > 'u' || c == 'k' || c == 'm'); }
@@ -40,9 +38,9 @@ namespace sseq {
       constexpr PinName BUTTON = D18;
       constexpr PinName LED = D17;
     } // namespace pins
-    constexpr std::size_t NUM_SOURCES = pins::SOURCES.size();
-    constexpr std::size_t NUM_INPUTS = 4;
-    constexpr std::size_t NUM_OUTPUTS = 1;
+    constexpr std::int8_t NUM_SOURCES = static_cast<std::int8_t>(pins::SOURCES.size());
+    constexpr std::int8_t NUM_INPUTS = 4;
+    constexpr std::int8_t NUM_OUTPUTS = 1;
   } // namespace grid
   namespace midi {
     namespace pins {
@@ -50,8 +48,8 @@ namespace sseq {
       constexpr PinName RX = D0;
     } // namespace pins
 
-    constexpr std::uint32_t BAUD_RATE = 31250; // put this back to 31250 when we actually run midi
-    constexpr std::size_t BUFFER_SIZE = 32;
+    constexpr std::int32_t BAUD_RATE = 31250;
+    constexpr std::int16_t BUFFER_SIZE = 32;
     constexpr std::uint8_t NOTE_ON = 0x90;
     constexpr std::uint8_t NOTE_OFF = 0x80;
     constexpr std::uint8_t CHANNEL_MASK = 0xf;
@@ -137,7 +135,7 @@ namespace sseq {
   } // namespace midi
   namespace buttons {
     constexpr std::array<PinName, 4> PINS = {D23, D22, D21, D20};
-    constexpr std::uint8_t DEBOUNCE_MS = 10;
+    constexpr std::int8_t DEBOUNCE_MS = 10;
   } // namespace buttons
   namespace alerts {
     /* Halt and blink a short message (at most 4 characters) on the 7-segment
