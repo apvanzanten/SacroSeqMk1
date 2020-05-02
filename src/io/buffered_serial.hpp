@@ -6,42 +6,38 @@
 #include <array>
 #include <cstdarg>
 #include <cstdio>
+#include <optional>
 
 namespace sseq {
   namespace io {
-    template <std::size_t N> class buffered_serial {
-      util::circular_buffer<char, N> buffer{};
+    template <std::size_t TX_BUFFER_SIZE, std::size_t RX_BUFFER_SIZE = 0> class buffered_serial {
+      util::circular_buffer<char, TX_BUFFER_SIZE> tx_buffer{};
+      util::circular_buffer<char, RX_BUFFER_SIZE> rx_buffer{};
       Serial s;
 
     public:
       buffered_serial(PinName tx, PinName rx, int baud = 9600)
           : s(tx, rx, baud) {}
 
-      inline bool try_write() {
-        if (!buffer.empty() && s.writeable()) {
-          s.putc(buffer.pop());
+      inline bool try_write_from_buffer() {
+        if (!tx_buffer.empty() && s.writeable()) {
+          s.putc(tx_buffer.pop());
           return true;
         }
         return false;
       }
 
       inline void flush() {
-        while (!buffer.empty()) {
-          try_write();
+        while (!tx_buffer.empty()) {
+          try_write_from_buffer();
         }
-      }
-
-      inline void clear() { buffer.clear(); }
-
-      inline size_t num_free(){
-        return buffer.num_free();
       }
 
       inline bool try_putc(char c) {
-        if (buffer.full()) {
+        if (tx_buffer.full()) {
           return false;
         }
-        buffer.push(c);
+        tx_buffer.push(c);
         return true;
       }
 
@@ -50,18 +46,14 @@ namespace sseq {
         while (s[n] != '\0') {
           n++;
         }
-        return buffer.try_push_array(s, n);
-      }
-
-      inline bool try_put_array(const char * s, size_t n){
-        return buffer.try_push_array(s, n);
+        return tx_buffer.try_push_array(s, n);
       }
 
       inline void putc(char c) {
-        while (buffer.full()) {
-          try_write();
+        while (tx_buffer.full()) {
+          try_write_from_buffer();
         }
-        buffer.push(c);
+        tx_buffer.push(c);
       }
 
       inline void puts(const char *s) {
@@ -71,16 +63,32 @@ namespace sseq {
         }
       }
 
-      inline bool try_printf(const char *format, ...) {
-        std::va_list args;
-        va_start(args, format);
-        std::array<char, N> arr;
-        size_t n = std::vsnprintf(arr.data(), buffer.num_free(), format, args);
-        if (n >= 0 && n < buffer.num_free()) {
-          return buffer.try_push_array(arr.data(), n);
+      inline bool try_read_to_buffer() {
+        if (!rx_buffer.full() && s.readable()) {
+          rx_buffer.push(static_cast<char>(s.getc()));
+          return true;
         }
         return false;
       }
+
+      inline void read_until_buffer_full() {
+        while (!rx_buffer.full()) {
+          try_read_to_buffer();
+        }
+      }
+
+      inline bool try_read_until_buffer_full() {
+        while(try_read_to_buffer()) { }
+        return rx_buffer.full();
+      }
+
+      inline std::optional<char> try_getc() {
+        if(!rx_buffer.empty()){
+          return rx_buffer.pop();
+        }
+        return {};
+      }
+
     };
   } // namespace io
 } // namespace sseq

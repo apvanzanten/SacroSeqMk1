@@ -96,8 +96,8 @@ namespace sseq {
         midi.try_putc(midi_msg.note);
         midi.try_putc(midi_msg.velocity);
       }
-      display.try_write();
-      midi.try_write();
+      display.try_write_from_buffer();
+      midi.try_write_from_buffer();
     }
 
     inline void write_to_display(const char * msg){
