@@ -43,18 +43,25 @@ namespace sseq {
     std::uint32_t gate_time = 0.75 * period;
     std::uint8_t current_repetition = 1;
 
-    midi::note currently_playing = midi::DEFAULT_NOTE;
-
-    volatile bool is_being_edited = false;
+    midi::note currently_playing = midi::note::NONE;
 
     util::circular_buffer<note_message, 4> output_buffer;
 
     inline std::uint8_t get_velocity() const { return (steps[step_index].is_active ? 127 : 0); }
 
-    inline void note_off(midi::note note) {output_buffer.push(note_message{note, 0}); }
-    inline void note_off() { note_off(currently_playing); }
+    inline void note_off(midi::note note) {
+      output_buffer.push(note_message{note, 0}); 
+    }
+    inline void note_off() { 
+      note_off(currently_playing); 
+      currently_playing = midi::note::NONE;
+    }
 
     inline void note_on(midi::note note) { 
+      if(currently_playing != midi::note::NONE) {
+        note_off();
+      }
+
       output_buffer.push(note_message{note, get_velocity()});
       currently_playing = note;
     }
@@ -63,11 +70,12 @@ namespace sseq {
     inline std::int8_t get_step_offset() { return 1; }
 
     void move_to_next_step();
+    void move_to_next_repetition();
 
-    inline void move_to_next_repetition() {
-      ++current_repetition;
-      time_delta = 0;
-    }
+    int num_reps_left();
+    
+    bool is_next_cycle();
+    bool is_gate_time_passed();
 
     void update_gate_state();
 
@@ -81,8 +89,8 @@ namespace sseq {
     inline size_t get_current_step() const { return step_index; }
 
     inline void set_bpm(size_t new_bpm) { 
-      auto new_period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; 
-      float gate_fraction =  static_cast<float>(gate_time) / static_cast<float>(period);
+      const auto new_period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; 
+      const float gate_fraction =  static_cast<float>(gate_time) / static_cast<float>(period);
 
       // TODO come up with better solution to race condition problem.
       if(new_period < period){
@@ -103,10 +111,6 @@ namespace sseq {
     inline bool update_and_check_buffer() {
       ++time_delta;
 
-      if (is_being_edited) {
-        return false;
-      }
-
       update_gate_state();
       return !(output_buffer.empty());
     }
@@ -114,9 +118,7 @@ namespace sseq {
     inline note_message get_next_note() { return output_buffer.pop(); }
 
     inline void set_gate_mode(size_t index, gate_mode new_val) {
-      is_being_edited = true;
       steps[index].gate = new_val;
-      is_being_edited = false;
     }
 
     inline void set_gate_mode_relative(size_t index, int offset){
@@ -130,9 +132,7 @@ namespace sseq {
 
 
     inline void set_note(size_t index, midi::note new_val) {
-      is_being_edited = true;
       steps[index].note = new_val;
-      is_being_edited = false;
     }
 
     inline void set_note_relative(size_t index, int offset) {
@@ -150,9 +150,7 @@ namespace sseq {
     }
 
     inline void set_repetitions(size_t index, std::uint8_t new_val) {
-      is_being_edited = true;
       steps[index].repetitions = new_val;
-      is_being_edited = false;
     }
 
     inline void set_repetitions_relative(size_t index, int offset) {
@@ -167,9 +165,7 @@ namespace sseq {
     }
 
     inline void set_activity(size_t index, bool new_val) {
-      is_being_edited = true;
       steps[index].is_active = new_val;
-      is_being_edited = false;
     }
   };
 } // namespace sseq

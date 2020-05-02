@@ -15,10 +15,27 @@ namespace sseq {
     current_repetition = 0;
   }
 
+  void sequencer::move_to_next_repetition() {
+    ++current_repetition;
+    time_delta = 0;
+  }
+
+  bool sequencer::is_next_cycle() {
+    return time_delta >= period;
+  }
+
+  int sequencer::num_reps_left() {
+    return steps[step_index].repetitions - current_repetition;
+  }
+
+  bool sequencer::is_gate_time_passed() {
+    return time_delta >= gate_time;  
+  }
+
   void sequencer::update_gate_state() {
     switch (gate_state) {
     case gate_states::initial:
-      if (time_delta >= period) {
+      if (is_next_cycle()) {
         time_delta = 0;
 
         note_on(steps[step_index].note);
@@ -42,23 +59,23 @@ namespace sseq {
       }
       break;
     case gate_states::hold_on:
-      if (time_delta >= gate_time && current_repetition >= steps[step_index].repetitions) {
+      if (is_gate_time_passed() && num_reps_left() <= 0) {
         note_off();
         move_to_next_step();
         gate_state = gate_states::initial;
-      } else if (time_delta >= period) {
+      } else if (is_next_cycle()) {
         move_to_next_repetition();
       }
       break;
     case gate_states::pulse_once_on:
-      if (time_delta >= gate_time) {
+      if (is_gate_time_passed()) {
         note_off();
         gate_state = gate_states::hold_off;
       }
       break;
     case gate_states::hold_off:
-      if (time_delta >= period) {
-        if (current_repetition >= steps[step_index].repetitions) {
+      if (is_next_cycle()) {
+        if (num_reps_left() <= 0) {
           move_to_next_step();
           gate_state = gate_states::initial;
         } else {
@@ -67,27 +84,33 @@ namespace sseq {
       }
       break;
     case gate_states::pulse_once_then_hold_on:
-      if (time_delta >= gate_time) {
+      if (is_gate_time_passed()) {
         note_off();
         gate_state = gate_states::pulse_once_then_hold_off;
       }
       break;
     case gate_states::pulse_once_then_hold_off:
-      if (time_delta >= period) {
-        note_on(steps[step_index].note);
-        move_to_next_repetition();
-        gate_state = gate_states::hold_on;
+      if (is_next_cycle()) {
+        if(num_reps_left() > 0)
+        {
+          note_on(steps[step_index].note);
+          move_to_next_repetition();
+          gate_state = gate_states::hold_on;
+        } else {
+          move_to_next_step();
+          gate_state = gate_states::initial;
+        }
       }
       break;
     case gate_states::pulse_repeat_on:
-      if (time_delta >= gate_time) {
+      if (is_gate_time_passed()) {
         note_off();
         gate_state = gate_states::pulse_repeat_off;
       }
       break;
     case gate_states::pulse_repeat_off:
-      if (time_delta >= period) {
-        if (current_repetition >= steps[step_index].repetitions) {
+      if (is_next_cycle()) {
+        if (num_reps_left() <= 0) {
           move_to_next_step();
           gate_state = gate_states::initial;
         } else {

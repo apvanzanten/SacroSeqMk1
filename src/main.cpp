@@ -43,7 +43,6 @@ int main() {
 
   while(true){
     update();
-    pc.printf(".");
   }
 
 

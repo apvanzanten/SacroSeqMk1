@@ -10,6 +10,8 @@
  * forbid maybe even a few macros!) relevant to the SacroSeqMk1 project.
  */
 
+// TODO use signed integers
+
 namespace sseq {
   constexpr std::uint8_t MAIN_CLOCK_PERIOD_US = 50;
   constexpr std::size_t MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
@@ -56,6 +58,7 @@ namespace sseq {
     constexpr std::uint8_t VELOCITY_MASK = 0x7f;
 
     enum class note {
+      NONE = 0,
       MINIMUM = 33,
       a1 = 33,
       as1 = 34,
