@@ -36,9 +36,13 @@
 # Platformio-generated files
 .pioenvs
 .piolibdeps
+.pio
 
 # Misc project files
 .clang_complete
 
 # sublime files
 proj.sublime-workspace
+
+# vscode
+.vscode
