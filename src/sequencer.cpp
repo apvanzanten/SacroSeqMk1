@@ -1,6 +1,15 @@
 #include "sequencer.hpp"
 
 namespace sseq {
+  void sequencer::update_period_and_gate_time() {
+    const std::int32_t new_period = MAIN_CLOCK_FREQUENCY_PPM / bpm;
+    const auto new_gate_time = static_cast<int>(gate_fraction * new_period);
+
+    // NOTE gate_time must be set before period to prevent case in which gate_time > period.
+    gate_time = new_gate_time;
+    period = new_period;
+  }
+
   void sequencer::move_to_next_step() {
     int new_step_index_signed_unbounded = step_index + get_step_offset();
 

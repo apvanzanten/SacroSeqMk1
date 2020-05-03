@@ -3,20 +3,25 @@
 
 #include "sacroseq.hpp"
 #include "util/circular_buffer.hpp"
+#include <algorithm>
 
 namespace sseq {
   class sequencer {
   public:
-    enum class gate_mode { hold, pulse_once, pulse_repeat, pulse_once_then_hold };
-
-    enum class probability_mode { uniform, bell, left_bell, right_bell };
+    enum class gate_mode { 
+      hold, pulse_once, pulse_repeat, pulse_once_then_hold,
+      MINIMUM = hold, MAXIMUM = pulse_once_then_hold
+    };
 
     struct note_message {
       midi::note note = midi::note::c4;
-      std::uint8_t velocity = 127;
+      std::uint8_t velocity = midi::VELOCITY_MAX;
     };
 
   private:
+    static constexpr auto MIN_BPM = 1;
+    static constexpr auto MAX_BPM = 500;
+
     enum class gate_states {
       initial,
       hold_on,
@@ -31,23 +36,27 @@ namespace sseq {
     struct step {
       gate_mode gate = gate_mode::hold;
       midi::note note = midi::note::c4;
-      std::uint8_t repetitions = 0;
+      std::int8_t repetitions = 0;
       bool is_active = false;
     };
 
     std::array<step, 8> steps;
-    size_t step_index = 0;
+    std::uint8_t step_index = 0;
 
-    std::uint32_t time_delta = 0;
-    std::uint32_t period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / 120;
-    std::uint32_t gate_time = 0.75 * period;
-    std::uint8_t current_repetition = 1;
+    std::int32_t time_delta = 0;
+    std::int16_t bpm = 120;
+    float gate_fraction = 0.75;
+    std::int32_t period = MAIN_CLOCK_FREQUENCY_PPM / bpm;
+    std::int32_t gate_time = gate_fraction * period;
+    std::int8_t current_repetition = 1;
 
     midi::note currently_playing = midi::note::NONE;
 
     util::circular_buffer<note_message, 4> output_buffer;
 
-    inline std::uint8_t get_velocity() const { return (steps[step_index].is_active ? 127 : 0); }
+    inline std::uint8_t get_velocity() const {
+      return (steps[step_index].is_active ? midi::VELOCITY_MAX : 0);
+    }
 
     inline void note_off(midi::note note) {
       output_buffer.push(note_message{note, 0}); 
@@ -79,33 +88,27 @@ namespace sseq {
 
     void update_gate_state();
 
+    void update_period_and_gate_time();
+
   public:
-    inline size_t get_bpm() const { return (60 * MAIN_CLOCK_FREQUENCY_HZ) / period; }
-    inline std::uint32_t get_gate_time() const { return gate_time; }
+    inline int get_bpm() const { return bpm; }
+    inline std::int32_t get_gate_time() const { return gate_time; }
     inline midi::note get_note(size_t index) const { return steps[index].note; }
     inline gate_mode get_gate_mode(size_t index) const { return steps[index].gate; }
-    inline std::uint32_t get_repetitions(size_t index) const { return steps[index].repetitions; }
+    inline std::int8_t get_repetitions(size_t index) const { return steps[index].repetitions; }
     inline bool get_activity(size_t index) const { return steps[index].is_active; }
-    inline size_t get_current_step() const { return step_index; }
+    inline std::uint8_t get_current_step() const { return step_index; }
 
-    inline void set_bpm(size_t new_bpm) { 
-      const auto new_period = (60 * MAIN_CLOCK_FREQUENCY_HZ) / new_bpm; 
-      const float gate_fraction =  static_cast<float>(gate_time) / static_cast<float>(period);
-
-      // TODO come up with better solution to race condition problem.
-      if(new_period < period){
-        gate_time = static_cast<std::uint32_t>(gate_fraction * new_period);
-        period = new_period;
-      } else {
-        period = new_period;
-        gate_time = static_cast<std::uint32_t>(gate_fraction * new_period);
-      }
+    inline void set_bpm(int new_bpm) {
+      bpm = std::clamp(new_bpm, MIN_BPM, MAX_BPM);
+      update_period_and_gate_time();
     }
 
     inline void set_bpm_relative(int offset) { set_bpm(get_bpm() + offset); }
 
     inline void set_gate_time(float new_time_fraction) {
-      gate_time = static_cast<std::uint32_t>(new_time_fraction * period);
+      gate_fraction = std::clamp(new_time_fraction, 0.0f, 1.0f);
+      gate_time = static_cast<std::int32_t>(gate_fraction * period);
     }
 
     inline bool update_and_check_buffer() {
@@ -121,47 +124,28 @@ namespace sseq {
       steps[index].gate = new_val;
     }
 
-    inline void set_gate_mode_relative(size_t index, int offset){
-      const int old_val = static_cast<int>(steps[index].gate);
-      if (offset > 0 && steps[index].gate != gate_mode::pulse_once_then_hold){
-        steps[index].gate = static_cast<gate_mode>(old_val + 1);
-      } else if(offset < 0 && steps[index].gate != gate_mode::hold){
-        steps[index].gate = static_cast<gate_mode>(old_val - 1);
-      }
+    inline void set_gate_mode_relative(size_t index, std::int8_t offset){
+      const auto old_val = static_cast<std::int8_t>(steps[index].gate);
+      const auto new_val = static_cast<gate_mode>(old_val + offset);
+
+      steps[index].gate = std::clamp(new_val, gate_mode::MINIMUM, gate_mode::MAXIMUM);
     }
 
-
-    inline void set_note(size_t index, midi::note new_val) {
-      steps[index].note = new_val;
-    }
+    inline void set_note(size_t index, midi::note new_val) { steps[index].note = new_val; }
 
     inline void set_note_relative(size_t index, int offset) {
-      int new_val = static_cast<int>(steps[index].note);
-      new_val += offset;
-
-      // TODO replace this with a proper clamp
-      if (new_val < static_cast<int>(midi::note::MINIMUM)) {
-        set_note(index, midi::note::MINIMUM);
-      } else if (new_val > static_cast<int>(midi::note::MAXIMUM)) {
-        set_note(index, midi::note::MAXIMUM);
-      } else {
-        set_note(index, static_cast<midi::note>(new_val));
-      }
+      const auto old_val = static_cast<int>(steps[index].note);
+      const auto new_val = static_cast<midi::note>(old_val + offset);
+      set_note(index, std::clamp(new_val, midi::note::MINIMUM, midi::note::MAXIMUM));
     }
 
-    inline void set_repetitions(size_t index, std::uint8_t new_val) {
+    inline void set_repetitions(size_t index, std::int8_t new_val) {
       steps[index].repetitions = new_val;
     }
 
-    inline void set_repetitions_relative(size_t index, int offset) {
-      auto new_val = steps[index].repetitions + offset;
-      if(new_val < 0){
-        set_repetitions(index, 0);
-      } else if(new_val > MAX_REPETITIONS) {
-        set_repetitions(index, MAX_REPETITIONS);
-      } else {
-        set_repetitions(index, new_val);
-      }
+    inline void set_repetitions_relative(size_t index, std::int8_t offset) {
+      const auto new_val = steps[index].repetitions + offset;
+      set_repetitions(index, std::clamp(new_val, 0, MAX_REPETITIONS));
     }
 
     inline void set_activity(size_t index, bool new_val) {

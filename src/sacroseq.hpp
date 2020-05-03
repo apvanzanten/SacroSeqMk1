@@ -9,11 +9,13 @@
 /* File containing various constants and simple helper functions (and heaven
  * forbid maybe even a few macros!) relevant to the SacroSeqMk1 project.
  */
+// TODO clean up specific intxx_t types, constexpr doesn't care about runtime memory
 
 namespace sseq {
   constexpr std::int8_t MAIN_CLOCK_PERIOD_US = 50;
   constexpr std::int32_t MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
-  constexpr std::int8_t MAX_REPETITIONS = 7;
+  constexpr std::int32_t MAIN_CLOCK_FREQUENCY_PPM = MAIN_CLOCK_FREQUENCY_HZ * 60;
+  constexpr int MAX_REPETITIONS = 7;
   namespace disp { // stuff pertaining to the 7-segment display
     namespace pins {
       constexpr PinName TX = D8;
@@ -21,7 +23,7 @@ namespace sseq {
     } // namespace pins
     constexpr std::int32_t BAUD_RATE = 9600;
     constexpr std::int8_t SCREEN_SIZE = 4;
-    constexpr std::int8_t  BUFFER_SIZE = 32;
+    constexpr std::int8_t BUFFER_SIZE = 32;
     constexpr char CLEAR_SCREEN = 0x76;
     constexpr char BLANK_SPACE = ' ';
     constexpr char UNKNOWN_CHAR = '_';
@@ -54,10 +56,9 @@ namespace sseq {
     constexpr std::uint8_t NOTE_OFF = 0x80;
     constexpr std::uint8_t CHANNEL_MASK = 0xf;
     constexpr std::uint8_t VELOCITY_MASK = 0x7f;
+    constexpr std::int8_t VELOCITY_MAX = 127;
 
     enum class note {
-      NONE = 0,
-      MINIMUM = 33,
       a1 = 33,
       as1 = 34,
       b1 = 35,
@@ -106,7 +107,9 @@ namespace sseq {
       fs5 = 78,
       g5 = 79,
       gs5 = 80,
-      MAXIMUM = 80
+      NONE = 0,
+      MINIMUM = a1,
+      MAXIMUM = gs5
     };
 
     constexpr note DEFAULT_NOTE = note::c4;
