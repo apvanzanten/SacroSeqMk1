@@ -1,7 +1,7 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
-#include "io/buffered_serial.hpp"
+#include "io/BufferedSerial.hpp"
 #include "io/button.hpp"
 #include "io/encoder.hpp"
 #include "io/grid.hpp"

@@ -2,7 +2,7 @@
 #define APP_HPP
 
 #include "interface.hpp"
-#include "io/buffered_serial.hpp"
+#include "io/BufferedSerial.hpp"
 #include "sacroseq.hpp"
 #include "sequencer.hpp"
 #include <string>
@@ -11,8 +11,8 @@ namespace sseq {
   class app {
     sequencer seq{};
     interface interf{};
-    io::buffered_serial<disp::BUFFER_SIZE> display{disp::pins::TX, disp::pins::RX, disp::BAUD_RATE};
-    io::buffered_serial<midi::BUFFER_SIZE> midi{midi::pins::TX, midi::pins::RX, midi::BAUD_RATE};
+    io::BufferedSerial<disp::BUFFER_SIZE> display{disp::pins::TX, disp::pins::RX, disp::BAUD_RATE};
+    io::BufferedSerial<midi::BUFFER_SIZE> midi{midi::pins::TX, midi::pins::RX, midi::BAUD_RATE};
 
     std::uint8_t channel = 1;
 
@@ -93,8 +93,8 @@ namespace sseq {
     void update();
 
     inline void write_to_display(const char * msg){
-      display.try_putc(disp::CLEAR_SCREEN);
-      display.try_puts(msg);
+      display.tryPutC(disp::CLEAR_SCREEN);
+      display.tryPutS(msg);
     }
 
     inline void write_to_display(int n) {

@@ -11,12 +11,12 @@ namespace sseq {
         } else {
           midi_msg = midi::make_note_off(channel, note_message.note);
         }
-        midi.try_putc(midi_msg.status);
-        midi.try_putc(midi_msg.note);
-        midi.try_putc(midi_msg.velocity);
+        midi.tryPutC(midi_msg.status);
+        midi.tryPutC(midi_msg.note);
+        midi.tryPutC(midi_msg.velocity);
       }
-      display.try_write_from_buffer();
-      midi.try_write_from_buffer();
+      display.tryWriteFromBuffer();
+      midi.tryWriteFromBuffer();
     }
 
     void app::update_mode() {
