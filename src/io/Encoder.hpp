@@ -2,24 +2,24 @@
 #define ENCODER_HPP
 namespace sseq {
   namespace io {
-    class encoder {
-      enum class states {
-        initial,
-        clockwise_1,
-        clockwise_2,
-        counter_clockwise_1,
-        counter_clockwise_2,
+    class Encoder {
+      enum class States {
+        idle,
+        clockwise1,
+        clockwise2,
+        counterClockwise1,
+        counterClockwise2,
         error
-      } state = states::initial;
+      } state = States::idle;
 
       int delta = 0;
-      bool prev_a = false;
-      bool prev_b = false;
+      bool prevA = false;
+      bool prevB = false;
       const bool &a;
       const bool &b;
 
     public:
-      encoder(const bool &a, const bool &b);
+      Encoder(const bool &a, const bool &b);
 
       inline int read() {
         auto ret = delta;

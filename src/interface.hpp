@@ -3,7 +3,7 @@
 
 #include "io/BufferedSerial.hpp"
 #include "io/Button.hpp"
-#include "io/encoder.hpp"
+#include "io/Encoder.hpp"
 #include "io/grid.hpp"
 #include "mbed.h"
 #include "sacroseq.hpp"
@@ -33,15 +33,15 @@ namespace sseq {
          DigitalIn(grid::pins::ENC_B, PullDown), DigitalIn(grid::pins::BUTTON, PullDown)},
         {DigitalOut(grid::pins::LED)}};
 
-    std::array<io::encoder, NUM_ENCODERS> encoders = {
-        io::encoder(grid_io.get_ref(0, ENC_A_INDEX), grid_io.get_ref(0, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(1, ENC_A_INDEX), grid_io.get_ref(1, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(2, ENC_A_INDEX), grid_io.get_ref(2, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(3, ENC_A_INDEX), grid_io.get_ref(3, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(4, ENC_A_INDEX), grid_io.get_ref(4, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(5, ENC_A_INDEX), grid_io.get_ref(5, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(6, ENC_A_INDEX), grid_io.get_ref(6, ENC_B_INDEX)),
-        io::encoder(grid_io.get_ref(7, ENC_A_INDEX), grid_io.get_ref(7, ENC_B_INDEX)),
+    std::array<io::Encoder, NUM_ENCODERS> encoders = {
+        io::Encoder(grid_io.get_ref(0, ENC_A_INDEX), grid_io.get_ref(0, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(1, ENC_A_INDEX), grid_io.get_ref(1, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(2, ENC_A_INDEX), grid_io.get_ref(2, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(3, ENC_A_INDEX), grid_io.get_ref(3, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(4, ENC_A_INDEX), grid_io.get_ref(4, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(5, ENC_A_INDEX), grid_io.get_ref(5, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(6, ENC_A_INDEX), grid_io.get_ref(6, ENC_B_INDEX)),
+        io::Encoder(grid_io.get_ref(7, ENC_A_INDEX), grid_io.get_ref(7, ENC_B_INDEX)),
     };
 
     std::array<DigitalIn, 4> button_ins = {
