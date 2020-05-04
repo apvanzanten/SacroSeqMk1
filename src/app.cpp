@@ -3,8 +3,8 @@
 namespace sseq {
     void app::step() {
       interf.step();
-      if (seq.update_and_check_buffer()) {
-        const auto note_message = seq.get_next_note();
+      if (seq.updateAndCheckBuffer()) {
+        const auto note_message = seq.getNextNote();
         midi::msg midi_msg;
         if (note_message.velocity > 0) {
           midi_msg = midi::make_note_on(channel, note_message.note, note_message.velocity);
@@ -41,8 +41,8 @@ namespace sseq {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].main_button;
         if (interf.checkAndResetButtonClicked(button_index)) {
-          const auto old_val = seq.get_activity(step_index);
-          seq.set_activity(step_index, !old_val);
+          const auto old_val = seq.getActivity(step_index);
+          seq.setActivity(step_index, !old_val);
         }
       }
     }
@@ -52,13 +52,13 @@ namespace sseq {
         const auto &button_index = step_index_pairs[step_index].enc_button;
         if (interf.checkAndResetButtonClicked(button_index)) {
           write_to_display("dflt");
-          seq.set_note(step_index, midi::DEFAULT_NOTE);
+          seq.setNote(step_index, midi::DEFAULT_NOTE);
           interf.getAndResetEncDelta(step_index);
         } else {
           const auto offset = interf.getAndResetEncDelta(step_index);
-          seq.set_note_relative(step_index, offset);
+          seq.setNoteRelative(step_index, offset);
           if(offset != 0){
-            write_to_display(static_cast<int>(seq.get_note(step_index)));
+            write_to_display(static_cast<int>(seq.getNote(step_index)));
           }
         }
       }
@@ -69,14 +69,14 @@ namespace sseq {
         const auto &button_index = step_index_pairs[step_index].enc_button;
         if (interf.checkAndResetButtonClicked(button_index)) {
           write_to_display("0");
-          seq.set_repetitions(step_index, 0);
+          seq.setRepetitions(step_index, 0);
           interf.getAndResetEncDelta(step_index);
         } else {
           const auto offset = interf.getAndResetEncDelta(step_index);
-          seq.set_repetitions_relative(step_index, offset);
+          seq.setRepetitionsRelative(step_index, offset);
 
           if(offset != 0){
-            write_to_display(seq.get_repetitions(step_index));
+            write_to_display(seq.getRepetitions(step_index));
           }
         }
       }
@@ -86,14 +86,14 @@ namespace sseq {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].enc_button;
         if (interf.checkAndResetButtonClicked(button_index)) {
-          seq.set_gate_mode(step_index, sequencer::gate_mode::hold);
+          seq.setGateMode(step_index, Sequencer::GateMode::hold);
           interf.getAndResetEncDelta(step_index);
         } else {
           const auto offset = interf.getAndResetEncDelta(step_index);
-          seq.set_gate_mode_relative(step_index, offset);
+          seq.setGateModeRelative(step_index, offset);
 
           if(offset != 0){
-            write_to_display(static_cast<int>(seq.get_gate_mode(step_index)));
+            write_to_display(static_cast<int>(seq.getGateMode(step_index)));
           }
         }
       }
@@ -117,8 +117,8 @@ namespace sseq {
       } else if (enc_deltas[globals::gate_time] != 0) {
         // TODO placeholder
       } else if (enc_deltas[globals::bpm] != 0) {
-        seq.set_bpm_relative(enc_deltas[globals::bpm]);
-        write_to_display(seq.get_bpm());
+        seq.setBpmRelative(enc_deltas[globals::bpm]);
+        write_to_display(seq.getBpm());
       }
     }
 
@@ -129,7 +129,7 @@ namespace sseq {
     void app::update_leds() {
       for(size_t step_index = 0; step_index < 8; ++step_index){
         interf.setLedVal(step_index, 
-          seq.get_activity(step_index) ^ (seq.get_current_step() == step_index) 
+          seq.getActivity(step_index) ^ (seq.getCurrentStep() == step_index) 
         );
       }
     }
