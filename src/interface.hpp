@@ -2,7 +2,7 @@
 #define INTERFACE_HPP
 
 #include "io/BufferedSerial.hpp"
-#include "io/button.hpp"
+#include "io/Button.hpp"
 #include "io/encoder.hpp"
 #include "io/grid.hpp"
 #include "mbed.h"
@@ -53,27 +53,27 @@ namespace sseq {
     std::array<bool, 4> button_reads;
 
     Timer tmr;
-    std::array<io::button, NUM_BUTTONS> buttons = {
-        io::button(tmr, grid_io.get_ref(0, 3)),
-        io::button(tmr, grid_io.get_ref(1, 3)),
-        io::button(tmr, grid_io.get_ref(2, 3)),
-        io::button(tmr, grid_io.get_ref(3, 3)),
-        io::button(tmr, grid_io.get_ref(4, 3)),
-        io::button(tmr, grid_io.get_ref(5, 3)),
-        io::button(tmr, grid_io.get_ref(6, 3)),
-        io::button(tmr, grid_io.get_ref(7, 3)),
-        io::button(tmr, button_reads[0]),
-        io::button(tmr, button_reads[1]),
-        io::button(tmr, button_reads[2]),
-        io::button(tmr, button_reads[3]),
-        io::button(tmr, grid_io.get_ref(0, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(1, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(2, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(3, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(4, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(5, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(6, ENC_BTN_INDEX)),
-        io::button(tmr, grid_io.get_ref(7, ENC_BTN_INDEX)),
+    std::array<io::Button, NUM_BUTTONS> buttons = {
+        io::Button(tmr, grid_io.get_ref(0, 3)),
+        io::Button(tmr, grid_io.get_ref(1, 3)),
+        io::Button(tmr, grid_io.get_ref(2, 3)),
+        io::Button(tmr, grid_io.get_ref(3, 3)),
+        io::Button(tmr, grid_io.get_ref(4, 3)),
+        io::Button(tmr, grid_io.get_ref(5, 3)),
+        io::Button(tmr, grid_io.get_ref(6, 3)),
+        io::Button(tmr, grid_io.get_ref(7, 3)),
+        io::Button(tmr, button_reads[0]),
+        io::Button(tmr, button_reads[1]),
+        io::Button(tmr, button_reads[2]),
+        io::Button(tmr, button_reads[3]),
+        io::Button(tmr, grid_io.get_ref(0, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(1, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(2, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(3, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(4, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(5, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(6, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.get_ref(7, ENC_BTN_INDEX)),
     };
 
     size_t button_in_index = 0;
@@ -89,12 +89,12 @@ namespace sseq {
     std::array<int, NUM_ENCODERS> get_and_reset_all_enc_deltas();
 
     inline bool check_and_reset_button_clicked(size_t index) {
-      const bool ret = buttons[index].is_clicked();
-      buttons[index].reset_clicked();
+      const bool ret = buttons[index].isClicked();
+      buttons[index].resetClicked();
       return ret;
     }
 
-    inline bool is_button_held(size_t index) const { return buttons[index].is_held(); }
+    inline bool is_button_held(size_t index) const { return buttons[index].isHeld(); }
 
     inline int get_enc_delta(size_t index) const { return encoders[index].peek(); }
 
