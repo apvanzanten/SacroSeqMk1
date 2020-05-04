@@ -5,11 +5,11 @@ namespace sseq {
       interf.step();
       if (seq.updateAndCheckBuffer()) {
         const auto noteMsg = seq.getNextNote();
-        midi::msg midiMsg;
+        midi::Msg midiMsg;
         if (noteMsg.velocity > 0) {
-          midiMsg = midi::make_note_on(channel, noteMsg.note, noteMsg.velocity);
+          midiMsg = midi::makeNoteOn(channel, noteMsg.note, noteMsg.velocity);
         } else {
-          midiMsg = midi::make_note_off(channel, noteMsg.note);
+          midiMsg = midi::makeNoteOff(channel, noteMsg.note);
         }
         midi.tryPutC(midiMsg.status);
         midi.tryPutC(midiMsg.note);

@@ -6,29 +6,28 @@
 #include <array>
 #include <cstdint>
 
-/* File containing various constants and simple helper functions (and heaven
- * forbid maybe even a few macros!) relevant to the SacroSeqMk1 project.
+/* File containing various constants and simple helper functions relevant to the SacroSeqMk1
+ * project.
  */
-// TODO clean up specific intxx_t types, constexpr doesn't care about runtime memory
 
 namespace sseq {
-  constexpr std::int8_t MAIN_CLOCK_PERIOD_US = 50;
-  constexpr std::int32_t MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
-  constexpr std::int32_t MAIN_CLOCK_FREQUENCY_PPM = MAIN_CLOCK_FREQUENCY_HZ * 60;
+  constexpr int MAIN_CLOCK_PERIOD_US = 50;
+  constexpr int MAIN_CLOCK_FREQUENCY_HZ = (1 * 1000 * 1000) / MAIN_CLOCK_PERIOD_US;
+  constexpr int MAIN_CLOCK_FREQUENCY_PPM = MAIN_CLOCK_FREQUENCY_HZ * 60;
   constexpr int MAX_REPETITIONS = 7;
   namespace disp { // stuff pertaining to the 7-segment display
     namespace pins {
       constexpr PinName TX = D8;
       constexpr PinName RX = D7;
     } // namespace pins
-    constexpr std::int32_t BAUD_RATE = 9600;
-    constexpr std::int8_t SCREEN_SIZE = 4;
-    constexpr std::int8_t BUFFER_SIZE = 32;
+    constexpr int BAUD_RATE = 9600;
+    constexpr int SCREEN_SIZE = 4;
+    constexpr int BUFFER_SIZE = 32;
     constexpr char CLEAR_SCREEN = 0x76;
     constexpr char BLANK_SPACE = ' ';
     constexpr char UNKNOWN_CHAR = '_';
-    constexpr bool is_valid(char c) { return !(c < '0' || c > 'u' || c == 'k' || c == 'm'); }
-    constexpr char sanitize(char c) { return (is_valid(c) ? c : UNKNOWN_CHAR); }
+    constexpr bool isValid(char c) { return !(c < '0' || c > 'u' || c == 'k' || c == 'm'); }
+    constexpr char sanitize(char c) { return (isValid(c) ? c : UNKNOWN_CHAR); }
   } // namespace disp
   namespace grid {
     namespace pins {
@@ -40,9 +39,9 @@ namespace sseq {
       constexpr PinName BUTTON = D18;
       constexpr PinName LED = D17;
     } // namespace pins
-    constexpr std::int8_t NUM_SOURCES = static_cast<std::int8_t>(pins::SOURCES.size());
-    constexpr std::int8_t NUM_INPUTS = 4;
-    constexpr std::int8_t NUM_OUTPUTS = 1;
+    constexpr int NUM_SOURCES = static_cast<int>(pins::SOURCES.size());
+    constexpr int NUM_INPUTS = 4;
+    constexpr int NUM_OUTPUTS = 1;
   } // namespace grid
   namespace midi {
     namespace pins {
@@ -50,15 +49,15 @@ namespace sseq {
       constexpr PinName RX = D0;
     } // namespace pins
 
-    constexpr std::int32_t BAUD_RATE = 31250;
-    constexpr std::int16_t BUFFER_SIZE = 32;
-    constexpr std::uint8_t NOTE_ON = 0x90;
-    constexpr std::uint8_t NOTE_OFF = 0x80;
-    constexpr std::uint8_t CHANNEL_MASK = 0xf;
-    constexpr std::uint8_t VELOCITY_MASK = 0x7f;
-    constexpr std::int8_t VELOCITY_MAX = 127;
+    constexpr int BAUD_RATE = 31250;
+    constexpr int BUFFER_SIZE = 32;
+    constexpr int NOTE_ON = 0x90;
+    constexpr int NOTE_OFF = 0x80;
+    constexpr int CHANNEL_MASK = 0xf;
+    constexpr int VELOCITY_MASK = 0x7f;
+    constexpr int VELOCITY_MAX = 127;
 
-    enum class note {
+    enum class Note {
       a1 = 33,
       as1 = 34,
       b1 = 35,
@@ -112,23 +111,23 @@ namespace sseq {
       MAXIMUM = gs5
     };
 
-    constexpr note DEFAULT_NOTE = note::c4;
+    constexpr Note DEFAULT_NOTE = Note::c4;
 
-    struct msg {
+    struct Msg {
       std::uint8_t status = NOTE_OFF;
-      std::uint8_t note = static_cast<std::uint8_t>(note::c4);
+      std::uint8_t note = static_cast<std::uint8_t>(Note::c4);
       std::uint8_t velocity = 64;
     };
 
-    constexpr msg make_note_on(std::uint8_t channel, note n, std::uint8_t velocity) {
-      msg m{};
+    constexpr Msg makeNoteOn(std::uint8_t channel, Note n, std::uint8_t velocity) {
+      Msg m{};
       m.status = (NOTE_ON | (channel & CHANNEL_MASK));
       m.note = static_cast<std::uint8_t>(n);
       m.velocity = (velocity & VELOCITY_MASK);
       return m;
     }
-    constexpr msg make_note_off(std::uint8_t channel, note n){
-      msg m{};
+    constexpr Msg makeNoteOff(std::uint8_t channel, Note n){
+      Msg m{};
       m.status = (NOTE_OFF | (channel & CHANNEL_MASK));
       m.note = static_cast<std::uint8_t>(n);
       m.velocity = 0;
@@ -138,20 +137,20 @@ namespace sseq {
   } // namespace midi
   namespace buttons {
     constexpr std::array<PinName, 4> PINS = {D23, D22, D21, D20};
-    constexpr std::int8_t DEBOUNCE_MS = 10;
+    constexpr int DEBOUNCE_MS = 10;
   } // namespace buttons
   namespace alerts {
     /* Halt and blink a short message (at most 4 characters) on the 7-segment
      * display. */
-    void halt_and_blink(const char *message);
+    void haltAndBlink(const char *message);
 
     /* Indicate to the outside world that we're done doing whatever we were
      * doing. */
-    inline void done() { halt_and_blink("done"); }
+    inline void done() { haltAndBlink("done"); }
 
     /* Function that indicates to the outside world that we've encountered an
      * error. */
-    inline void error() { halt_and_blink("err"); }
+    inline void error() { haltAndBlink("err"); }
   } // namespace alerts
 
 } // namespace sseq

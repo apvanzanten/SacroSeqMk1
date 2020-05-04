@@ -14,7 +14,7 @@ namespace sseq {
     };
 
     struct NoteMessage {
-      midi::note note = midi::note::c4;
+      midi::Note note = midi::Note::c4;
       std::uint8_t velocity = midi::VELOCITY_MAX;
     };
 
@@ -35,7 +35,7 @@ namespace sseq {
 
     struct step {
       GateMode gate = GateMode::hold;
-      midi::note note = midi::note::c4;
+      midi::Note note = midi::Note::c4;
       std::int8_t repetitions = 0;
       bool isActive = false;
     };
@@ -50,7 +50,7 @@ namespace sseq {
     std::int32_t gateTime = gateFraction * period;
     std::int8_t currentRepetition = 1;
 
-    midi::note noteCurrentlyPlaying = midi::note::NONE;
+    midi::Note noteCurrentlyPlaying = midi::Note::NONE;
 
     util::CircularBuffer<NoteMessage, 4> outputBuffer;
 
@@ -58,16 +58,16 @@ namespace sseq {
       return (steps[stepIndex].isActive ? midi::VELOCITY_MAX : 0);
     }
 
-    inline void noteOff(midi::note note) {
+    inline void noteOff(midi::Note note) {
       outputBuffer.push(NoteMessage{note, 0}); 
     }
     inline void noteOff() { 
       noteOff(noteCurrentlyPlaying); 
-      noteCurrentlyPlaying = midi::note::NONE;
+      noteCurrentlyPlaying = midi::Note::NONE;
     }
 
-    inline void noteOn(midi::note note) { 
-      if(noteCurrentlyPlaying != midi::note::NONE) {
+    inline void noteOn(midi::Note note) { 
+      if(noteCurrentlyPlaying != midi::Note::NONE) {
         noteOff();
       }
 
@@ -93,7 +93,7 @@ namespace sseq {
   public:
     inline int getBpm() const { return bpm; }
     inline std::int32_t getGateTime() const { return gateTime; }
-    inline midi::note getNote(size_t index) const { return steps[index].note; }
+    inline midi::Note getNote(size_t index) const { return steps[index].note; }
     inline GateMode getGateMode(size_t index) const { return steps[index].gate; }
     inline std::int8_t getRepetitions(size_t index) const { return steps[index].repetitions; }
     inline bool getActivity(size_t index) const { return steps[index].isActive; }
@@ -131,12 +131,12 @@ namespace sseq {
       steps[index].gate = std::clamp(newVal, GateMode::MINIMUM, GateMode::MAXIMUM);
     }
 
-    inline void setNote(size_t index, midi::note newVal) { steps[index].note = newVal; }
+    inline void setNote(size_t index, midi::Note newVal) { steps[index].note = newVal; }
 
     inline void setNoteRelative(size_t index, int offset) {
       const auto old_val = static_cast<int>(steps[index].note);
-      const auto new_val = static_cast<midi::note>(old_val + offset);
-      setNote(index, std::clamp(new_val, midi::note::MINIMUM, midi::note::MAXIMUM));
+      const auto new_val = static_cast<midi::Note>(old_val + offset);
+      setNote(index, std::clamp(new_val, midi::Note::MINIMUM, midi::Note::MAXIMUM));
     }
 
     inline void setRepetitions(size_t index, std::int8_t newVal) {

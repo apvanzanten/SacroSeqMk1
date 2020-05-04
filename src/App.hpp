@@ -50,12 +50,12 @@ namespace sseq {
       };
     };
 
-    struct stepIndexPair {
+    struct StepIndexPair {
       size_t mainButton;
       size_t encButton;
     };
 
-    static constexpr std::array<stepIndexPair, 8> stepIndexPairs{{
+    static constexpr std::array<StepIndexPair, 8> stepIndexPairs{{
         {Buttons::bottom0, Buttons::enc0},
         {Buttons::bottom1, Buttons::enc1},
         {Buttons::bottom2, Buttons::enc2},
@@ -91,12 +91,10 @@ namespace sseq {
   public:
     void step();
     void update();
-
     inline void writeToDisplay(const char * msg){
       display.tryPutC(disp::CLEAR_SCREEN);
       display.tryPutS(msg);
     }
-
     inline void writeToDisplay(int n) {
       writeToDisplay(
         std::to_string(n)
@@ -104,13 +102,10 @@ namespace sseq {
         .c_str()
       );
     }
-
     inline void switchToMode(Modes::val newMode) {
       writeToDisplay(modeMsgs[newMode]);
       mode = newMode;
     }
-
-
   }; // namespace sseq
 } // namespace sseq
 

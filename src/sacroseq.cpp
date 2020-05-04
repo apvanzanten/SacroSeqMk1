@@ -2,7 +2,7 @@
 
 namespace sseq {
   namespace alerts {
-    void halt_and_blink(const char *message) {
+    void haltAndBlink(const char *message) {
       Serial display(disp::pins::TX, disp::pins::RX, disp::BAUD_RATE);
 
       while (true) {
