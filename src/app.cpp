@@ -20,18 +20,18 @@ namespace sseq {
     }
 
     void app::update_mode() {
-      if (interf.is_button_held(buttons::shift)) {
-        if (interf.check_and_reset_button_clicked(buttons::top_right)) {
+      if (interf.isButtonHeld(buttons::shift)) {
+        if (interf.checkAndResetButtonClicked(buttons::top_right)) {
           switch_to_mode(modes::global);
-        } else if (interf.check_and_reset_button_clicked(buttons::bottom_right)) {
+        } else if (interf.checkAndResetButtonClicked(buttons::bottom_right)) {
           switch_to_mode(modes::menu);
         }
       } else {
-        if (interf.check_and_reset_button_clicked(buttons::top_right)) {
+        if (interf.checkAndResetButtonClicked(buttons::top_right)) {
           switch_to_mode(modes::note);
-        } else if (interf.check_and_reset_button_clicked(buttons::bottom_right)) {
+        } else if (interf.checkAndResetButtonClicked(buttons::bottom_right)) {
           switch_to_mode(modes::repetition);
-        } else if (interf.check_and_reset_button_clicked(buttons::bottom_left)) {
+        } else if (interf.checkAndResetButtonClicked(buttons::bottom_left)) {
           switch_to_mode(modes::gate);
         }
       }
@@ -40,7 +40,7 @@ namespace sseq {
     void app::update_activities() {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].main_button;
-        if (interf.check_and_reset_button_clicked(button_index)) {
+        if (interf.checkAndResetButtonClicked(button_index)) {
           const auto old_val = seq.get_activity(step_index);
           seq.set_activity(step_index, !old_val);
         }
@@ -50,12 +50,12 @@ namespace sseq {
     void app::update_notes() {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].enc_button;
-        if (interf.check_and_reset_button_clicked(button_index)) {
+        if (interf.checkAndResetButtonClicked(button_index)) {
           write_to_display("dflt");
           seq.set_note(step_index, midi::DEFAULT_NOTE);
-          interf.get_and_reset_enc_delta(step_index);
+          interf.getAndResetEncDelta(step_index);
         } else {
-          const auto offset = interf.get_and_reset_enc_delta(step_index);
+          const auto offset = interf.getAndResetEncDelta(step_index);
           seq.set_note_relative(step_index, offset);
           if(offset != 0){
             write_to_display(static_cast<int>(seq.get_note(step_index)));
@@ -67,12 +67,12 @@ namespace sseq {
     void app::update_repetitions() {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].enc_button;
-        if (interf.check_and_reset_button_clicked(button_index)) {
+        if (interf.checkAndResetButtonClicked(button_index)) {
           write_to_display("0");
           seq.set_repetitions(step_index, 0);
-          interf.get_and_reset_enc_delta(step_index);
+          interf.getAndResetEncDelta(step_index);
         } else {
-          const auto offset = interf.get_and_reset_enc_delta(step_index);
+          const auto offset = interf.getAndResetEncDelta(step_index);
           seq.set_repetitions_relative(step_index, offset);
 
           if(offset != 0){
@@ -85,11 +85,11 @@ namespace sseq {
     void app::update_gates() {
       for (size_t step_index = 0; step_index < step_index_pairs.size(); step_index++) {
         const auto &button_index = step_index_pairs[step_index].enc_button;
-        if (interf.check_and_reset_button_clicked(button_index)) {
+        if (interf.checkAndResetButtonClicked(button_index)) {
           seq.set_gate_mode(step_index, sequencer::gate_mode::hold);
-          interf.get_and_reset_enc_delta(step_index);
+          interf.getAndResetEncDelta(step_index);
         } else {
-          const auto offset = interf.get_and_reset_enc_delta(step_index);
+          const auto offset = interf.getAndResetEncDelta(step_index);
           seq.set_gate_mode_relative(step_index, offset);
 
           if(offset != 0){
@@ -100,7 +100,7 @@ namespace sseq {
     }
 
     void app::update_globals() {
-      const auto enc_deltas = interf.get_and_reset_all_enc_deltas();
+      const auto enc_deltas = interf.getAndResetAllEncDeltas();
 
       if (enc_deltas[globals::min_velocity] != 0) {
         // TODO placeholder
@@ -128,7 +128,7 @@ namespace sseq {
 
     void app::update_leds() {
       for(size_t step_index = 0; step_index < 8; ++step_index){
-        interf.set_led_val(step_index, 
+        interf.setLedVal(step_index, 
           seq.get_activity(step_index) ^ (seq.get_current_step() == step_index) 
         );
       }

@@ -1,7 +1,7 @@
 #ifndef APP_HPP
 #define APP_HPP
 
-#include "interface.hpp"
+#include "Interface.hpp"
 #include "io/BufferedSerial.hpp"
 #include "sacroseq.hpp"
 #include "sequencer.hpp"
@@ -10,7 +10,7 @@
 namespace sseq {
   class app {
     sequencer seq{};
-    interface interf{};
+    Interface interf{};
     io::BufferedSerial<disp::BUFFER_SIZE> display{disp::pins::TX, disp::pins::RX, disp::BAUD_RATE};
     io::BufferedSerial<midi::BUFFER_SIZE> midi{midi::pins::TX, midi::pins::RX, midi::BAUD_RATE};
 
