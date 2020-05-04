@@ -33,14 +33,14 @@ namespace sseq {
       pulseRepeatOff
     } gateState;
 
-    struct step {
+    struct Step {
       GateMode gate = GateMode::hold;
       midi::Note note = midi::Note::c4;
       std::int8_t repetitions = 0;
       bool isActive = false;
     };
 
-    std::array<step, 8> steps;
+    std::array<Step, 8> steps;
     std::uint8_t stepIndex = 0;
 
     std::int32_t timeDelta = 0;
