@@ -2,7 +2,7 @@
 #define SEQUENCER_HPP
 
 #include "sacroseq.hpp"
-#include "util/circular_buffer.hpp"
+#include "util/CircularBuffer.hpp"
 #include <algorithm>
 
 namespace sseq {
@@ -52,7 +52,7 @@ namespace sseq {
 
     midi::note currently_playing = midi::note::NONE;
 
-    util::circular_buffer<note_message, 4> output_buffer;
+    util::CircularBuffer<note_message, 4> output_buffer;
 
     inline std::uint8_t get_velocity() const {
       return (steps[step_index].is_active ? midi::VELOCITY_MAX : 0);
@@ -115,7 +115,7 @@ namespace sseq {
       ++time_delta;
 
       update_gate_state();
-      return !(output_buffer.empty());
+      return !(output_buffer.isEmpty());
     }
 
     inline note_message get_next_note() { return output_buffer.pop(); }
