@@ -4,7 +4,7 @@
 #include "io/BufferedSerial.hpp"
 #include "io/Button.hpp"
 #include "io/Encoder.hpp"
-#include "io/grid.hpp"
+#include "io/Grid.hpp"
 #include "mbed.h"
 #include "sacroseq.hpp"
 
@@ -18,7 +18,7 @@ namespace sseq {
     static constexpr size_t NUM_ENCODERS = 8;
     static constexpr size_t NUM_BUTTONS = 20;
 
-    io::grid<grid::NUM_SOURCES, grid::NUM_INPUTS, grid::NUM_OUTPUTS> grid_io{
+    io::Grid<grid::NUM_SOURCES, grid::NUM_INPUTS, grid::NUM_OUTPUTS> grid_io{
         {
             DigitalOut(grid::pins::SOURCES[0]),
             DigitalOut(grid::pins::SOURCES[1]),
@@ -34,14 +34,14 @@ namespace sseq {
         {DigitalOut(grid::pins::LED)}};
 
     std::array<io::Encoder, NUM_ENCODERS> encoders = {
-        io::Encoder(grid_io.get_ref(0, ENC_A_INDEX), grid_io.get_ref(0, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(1, ENC_A_INDEX), grid_io.get_ref(1, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(2, ENC_A_INDEX), grid_io.get_ref(2, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(3, ENC_A_INDEX), grid_io.get_ref(3, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(4, ENC_A_INDEX), grid_io.get_ref(4, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(5, ENC_A_INDEX), grid_io.get_ref(5, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(6, ENC_A_INDEX), grid_io.get_ref(6, ENC_B_INDEX)),
-        io::Encoder(grid_io.get_ref(7, ENC_A_INDEX), grid_io.get_ref(7, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(0, ENC_A_INDEX), grid_io.getRef(0, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(1, ENC_A_INDEX), grid_io.getRef(1, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(2, ENC_A_INDEX), grid_io.getRef(2, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(3, ENC_A_INDEX), grid_io.getRef(3, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(4, ENC_A_INDEX), grid_io.getRef(4, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(5, ENC_A_INDEX), grid_io.getRef(5, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(6, ENC_A_INDEX), grid_io.getRef(6, ENC_B_INDEX)),
+        io::Encoder(grid_io.getRef(7, ENC_A_INDEX), grid_io.getRef(7, ENC_B_INDEX)),
     };
 
     std::array<DigitalIn, 4> button_ins = {
@@ -54,26 +54,26 @@ namespace sseq {
 
     Timer tmr;
     std::array<io::Button, NUM_BUTTONS> buttons = {
-        io::Button(tmr, grid_io.get_ref(0, 3)),
-        io::Button(tmr, grid_io.get_ref(1, 3)),
-        io::Button(tmr, grid_io.get_ref(2, 3)),
-        io::Button(tmr, grid_io.get_ref(3, 3)),
-        io::Button(tmr, grid_io.get_ref(4, 3)),
-        io::Button(tmr, grid_io.get_ref(5, 3)),
-        io::Button(tmr, grid_io.get_ref(6, 3)),
-        io::Button(tmr, grid_io.get_ref(7, 3)),
+        io::Button(tmr, grid_io.getRef(0, 3)),
+        io::Button(tmr, grid_io.getRef(1, 3)),
+        io::Button(tmr, grid_io.getRef(2, 3)),
+        io::Button(tmr, grid_io.getRef(3, 3)),
+        io::Button(tmr, grid_io.getRef(4, 3)),
+        io::Button(tmr, grid_io.getRef(5, 3)),
+        io::Button(tmr, grid_io.getRef(6, 3)),
+        io::Button(tmr, grid_io.getRef(7, 3)),
         io::Button(tmr, button_reads[0]),
         io::Button(tmr, button_reads[1]),
         io::Button(tmr, button_reads[2]),
         io::Button(tmr, button_reads[3]),
-        io::Button(tmr, grid_io.get_ref(0, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(1, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(2, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(3, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(4, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(5, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(6, ENC_BTN_INDEX)),
-        io::Button(tmr, grid_io.get_ref(7, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(0, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(1, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(2, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(3, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(4, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(5, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(6, ENC_BTN_INDEX)),
+        io::Button(tmr, grid_io.getRef(7, ENC_BTN_INDEX)),
     };
 
     size_t button_in_index = 0;
@@ -101,7 +101,7 @@ namespace sseq {
     inline int get_and_reset_enc_delta(size_t index){ return encoders[index].read(); }
 
     inline bool get_led_val(size_t index) const {
-      return !grid_io.get_desired(index, LED_INDEX);
+      return !grid_io.getDesired(index, LED_INDEX);
     }
 
     inline void set_led_val(size_t index, bool new_val = true) {
