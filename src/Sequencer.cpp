@@ -1,4 +1,5 @@
 #include "Sequencer.hpp"
+#include "GateSM/HoldOn.hpp"
 
 namespace sseq {
   void Sequencer::updatePeriodAndGateTime() {
